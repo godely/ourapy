@@ -12,7 +12,8 @@ from oura_api_client.models.daily_readiness import DailyReadinessResponse, Daily
 from oura_api_client.models.sleep import SleepResponse, SleepModel
 from oura_api_client.models.session import SessionResponse, SessionModel
 from oura_api_client.models.tag import TagResponse, TagModel
-from oura_api_client.models.workout import WorkoutResponse, WorkoutModel # Added WorkoutModel and WorkoutResponse
+from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
+from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel # Added EnhancedTag models
 import requests
 from requests.exceptions import RequestException
 
@@ -36,7 +37,8 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.sleep)
         self.assertIsNotNone(self.client.session)
         self.assertIsNotNone(self.client.tag)
-        self.assertIsNotNone(self.client.workout) # Added workout
+        self.assertIsNotNone(self.client.workout)
+        self.assertIsNotNone(self.client.enhanced_tag) # Added enhanced_tag
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -1085,3 +1087,138 @@ class TestWorkout(unittest.TestCase):
         document_id = "test_workout_single_error"
         with self.assertRaises(RequestException):
             self.client.workout.get_workout_document(document_id=document_id)
+
+
+class TestEnhancedTag(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_1",
+                "tag_type_code": "common_cold",
+                "start_time": "2024-03-10T00:00:00+00:00",
+                "end_time": "2024-03-12T00:00:00+00:00",
+                "start_day": "2024-03-10",
+                "end_day": "2024-03-12",
+                "comment": "Feeling under the weather."
+            },
+            {
+                "id": "tag_2",
+                "tag_type_code": "vacation",
+                "start_time": "2024-03-15T00:00:00+00:00",
+                "start_day": "2024-03-15",
+                "comment": "Beach time!"
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_enhanced_tag_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-01" # Using different dates for query
+        end_date_str = "2024-03-31"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        enhanced_tag_response = self.client.enhanced_tag.get_enhanced_tag_documents(
+            start_date=start_date, end_date=end_date, next_token="test_enhanced_tag_token"
+        )
+
+        self.assertIsInstance(enhanced_tag_response, EnhancedTagResponse)
+        self.assertEqual(len(enhanced_tag_response.data), 2)
+        self.assertIsInstance(enhanced_tag_response.data[0], EnhancedTagModel)
+        self.assertEqual(enhanced_tag_response.next_token, "next_enhanced_tag_token")
+        self.assertEqual(enhanced_tag_response.data[0].tag_type_code, "common_cold")
+        self.assertEqual(enhanced_tag_response.data[1].start_day, date(2024, 3, 15))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_enhanced_tag_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_str_date",
+                "tag_type_code": "travel",
+                "start_time": "2024-03-05T00:00:00+00:00",
+                "start_day": "2024-03-05",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-01"
+        end_date_str = "2024-03-31"
+
+        self.client.enhanced_tag.get_enhanced_tag_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.enhanced_tag.get_enhanced_tag_documents(
+                start_date="2024-03-01", end_date="2024-03-31"
+            )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_enhanced_tag_single",
+            "tag_type_code": "stress",
+            "start_time": "2024-03-10T10:00:00+00:00",
+            "end_time": "2024-03-10T18:00:00+00:00",
+            "start_day": "2024-03-10",
+            "end_day": "2024-03-10",
+            "comment": "Tough day at work."
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_enhanced_tag_single"
+        enhanced_tag_document = self.client.enhanced_tag.get_enhanced_tag_document(document_id=document_id)
+
+        self.assertIsInstance(enhanced_tag_document, EnhancedTagModel)
+        self.assertEqual(enhanced_tag_document.id, document_id)
+        self.assertEqual(enhanced_tag_document.tag_type_code, "stress")
+        self.assertEqual(enhanced_tag_document.comment, "Tough day at work.")
+        self.assertEqual(enhanced_tag_document.start_time, datetime.fromisoformat("2024-03-10T10:00:00+00:00"))
+        self.assertEqual(enhanced_tag_document.end_day, date(2024, 3, 10))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_enhanced_tag_single_error"
+        with self.assertRaises(RequestException):
+            self.client.enhanced_tag.get_enhanced_tag_document(document_id=document_id)

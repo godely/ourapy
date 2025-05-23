@@ -13,6 +13,7 @@ from .sleep import Sleep
 from .session import Session
 from .tag import Tag
 from .workout import Workout
+from .enhanced_tag import EnhancedTag
 
 
 class OuraClient:
@@ -42,6 +43,7 @@ class OuraClient:
         self.session = Session(self)
         self.tag = Tag(self)
         self.workout = Workout(self)
+        self.enhanced_tag = EnhancedTag(self)
 
     def _make_request(
         self,
