@@ -11,7 +11,8 @@ from oura_api_client.models.daily_sleep import DailySleepResponse, DailySleepMod
 from oura_api_client.models.daily_readiness import DailyReadinessResponse, DailyReadinessModel, ReadinessContributors
 from oura_api_client.models.sleep import SleepResponse, SleepModel
 from oura_api_client.models.session import SessionResponse, SessionModel
-from oura_api_client.models.tag import TagResponse, TagModel # Added TagModel and TagResponse
+from oura_api_client.models.tag import TagResponse, TagModel
+from oura_api_client.models.workout import WorkoutResponse, WorkoutModel # Added WorkoutModel and WorkoutResponse
 import requests
 from requests.exceptions import RequestException
 
@@ -34,7 +35,8 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.daily_readiness)
         self.assertIsNotNone(self.client.sleep)
         self.assertIsNotNone(self.client.session)
-        self.assertIsNotNone(self.client.tag) # Added tag
+        self.assertIsNotNone(self.client.tag)
+        self.assertIsNotNone(self.client.workout) # Added workout
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -941,3 +943,145 @@ class TestTag(unittest.TestCase):
         document_id = "test_tag_single_error"
         with self.assertRaises(RequestException):
             self.client.tag.get_tag_document(document_id=document_id)
+
+
+class TestWorkout(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_workout_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "workout_doc_1",
+                "activity": "running",
+                "calories": 300.5,
+                "day": "2024-03-10",
+                "distance": 5000.0,
+                "end_datetime": "2024-03-10T08:30:00+00:00",
+                "intensity": "moderate",
+                "source": "manual",
+                "start_datetime": "2024-03-10T08:00:00+00:00",
+            },
+            {
+                "id": "workout_doc_2",
+                "activity": "yoga",
+                "day": "2024-03-11",
+                "end_datetime": "2024-03-11T17:00:00+00:00",
+                "intensity": "easy",
+                "source": "oura_app",
+                "start_datetime": "2024-03-11T16:00:00+00:00",
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_workout_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        workout_response = self.client.workout.get_workout_documents(
+            start_date=start_date, end_date=end_date, next_token="test_workout_token"
+        )
+
+        self.assertIsInstance(workout_response, WorkoutResponse)
+        self.assertEqual(len(workout_response.data), 2)
+        self.assertIsInstance(workout_response.data[0], WorkoutModel)
+        self.assertEqual(workout_response.next_token, "next_workout_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/workout",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_workout_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_workout_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "workout_doc_str",
+                "activity": "cycling",
+                "day": "2024-03-10",
+                "end_datetime": "2024-03-10T18:00:00+00:00",
+                "intensity": "hard",
+                "source": "strava",
+                "start_datetime": "2024-03-10T17:00:00+00:00",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.workout.get_workout_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/workout",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_workout_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.workout.get_workout_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_workout_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_workout_single",
+            "activity": "swimming",
+            "calories": 400.0,
+            "day": "2024-03-10",
+            "distance": 1000.0,
+            "end_datetime": "2024-03-10T12:45:00+00:00",
+            "energy": 1673.6, # Example energy in kJ
+            "intensity": "moderate",
+            "label": "Pool session",
+            "source": "apple_health",
+            "start_datetime": "2024-03-10T12:00:00+00:00",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_workout_single"
+        workout_document = self.client.workout.get_workout_document(document_id=document_id)
+
+        self.assertIsInstance(workout_document, WorkoutModel)
+        self.assertEqual(workout_document.id, document_id)
+        self.assertEqual(workout_document.activity, "swimming")
+        self.assertEqual(workout_document.intensity, "moderate")
+        self.assertEqual(workout_document.source, "apple_health")
+        self.assertEqual(workout_document.start_datetime, datetime.fromisoformat("2024-03-10T12:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/workout/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_workout_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_workout_single_error"
+        with self.assertRaises(RequestException):
+            self.client.workout.get_workout_document(document_id=document_id)
