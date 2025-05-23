@@ -10,7 +10,8 @@ from oura_api_client.models.daily_activity import DailyActivityResponse, DailyAc
 from oura_api_client.models.daily_sleep import DailySleepResponse, DailySleepModel, SleepContributors
 from oura_api_client.models.daily_readiness import DailyReadinessResponse, DailyReadinessModel, ReadinessContributors
 from oura_api_client.models.sleep import SleepResponse, SleepModel
-from oura_api_client.models.session import SessionResponse, SessionModel # Added SessionModel and SessionResponse
+from oura_api_client.models.session import SessionResponse, SessionModel
+from oura_api_client.models.tag import TagResponse, TagModel # Added TagModel and TagResponse
 import requests
 from requests.exceptions import RequestException
 
@@ -32,7 +33,8 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.daily_sleep)
         self.assertIsNotNone(self.client.daily_readiness)
         self.assertIsNotNone(self.client.sleep)
-        self.assertIsNotNone(self.client.session) # Added session
+        self.assertIsNotNone(self.client.session)
+        self.assertIsNotNone(self.client.tag) # Added tag
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -817,3 +819,125 @@ class TestSession(unittest.TestCase):
         document_id = "test_session_single_error"
         with self.assertRaises(RequestException):
             self.client.session.get_session_document(document_id=document_id)
+
+
+class TestTag(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_tag_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_doc_1",
+                "day": "2024-03-10",
+                "text": "Morning workout",
+                "timestamp": "2024-03-10T09:00:00+00:00",
+            },
+            {
+                "id": "tag_doc_2",
+                "day": "2024-03-11",
+                "text": "Big presentation",
+                "timestamp": "2024-03-11T14:00:00+00:00",
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_tag_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        tag_response = self.client.tag.get_tag_documents(
+            start_date=start_date, end_date=end_date, next_token="test_tag_token"
+        )
+
+        self.assertIsInstance(tag_response, TagResponse)
+        self.assertEqual(len(tag_response.data), 2)
+        self.assertIsInstance(tag_response.data[0], TagModel)
+        self.assertEqual(tag_response.next_token, "next_tag_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/tag",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_tag_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_tag_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_doc_str",
+                "day": "2024-03-10",
+                "text": "String date test",
+                "timestamp": "2024-03-10T09:00:00+00:00",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.tag.get_tag_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/tag",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_tag_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.tag.get_tag_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_tag_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_tag_single",
+            "day": "2024-03-10",
+            "text": "Single tag test",
+            "timestamp": "2024-03-10T11:00:00+00:00",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_tag_single"
+        tag_document = self.client.tag.get_tag_document(document_id=document_id)
+
+        self.assertIsInstance(tag_document, TagModel)
+        self.assertEqual(tag_document.id, document_id)
+        self.assertEqual(tag_document.text, "Single tag test")
+        self.assertEqual(tag_document.timestamp, datetime.fromisoformat("2024-03-10T11:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/tag/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_tag_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_tag_single_error"
+        with self.assertRaises(RequestException):
+            self.client.tag.get_tag_document(document_id=document_id)

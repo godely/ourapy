@@ -11,6 +11,7 @@ from .daily_sleep import DailySleep
 from .daily_readiness import DailyReadiness
 from .sleep import Sleep
 from .session import Session
+from .tag import Tag
 
 
 class OuraClient:
@@ -38,6 +39,7 @@ class OuraClient:
         self.daily_readiness = DailyReadiness(self)
         self.sleep = Sleep(self)
         self.session = Session(self)
+        self.tag = Tag(self)
 
     def _make_request(
         self,
