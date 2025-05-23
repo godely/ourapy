@@ -6,6 +6,10 @@ from datetime import date, datetime
 
 from .heartrate import HeartRateEndpoints
 from .personal import PersonalEndpoints
+from .daily_activity import DailyActivity
+from .daily_sleep import DailySleep
+from .daily_readiness import DailyReadiness
+from .sleep import Sleep
 
 
 class OuraClient:
@@ -28,6 +32,10 @@ class OuraClient:
         # Initialize endpoint modules
         self.heartrate = HeartRateEndpoints(self)
         self.personal = PersonalEndpoints(self)
+        self.daily_activity = DailyActivity(self)
+        self.daily_sleep = DailySleep(self)
+        self.daily_readiness = DailyReadiness(self)
+        self.sleep = Sleep(self)
 
     def _make_request(
         self,
