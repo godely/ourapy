@@ -14,6 +14,7 @@ from .session import Session
 from .tag import Tag
 from .workout import Workout
 from .enhanced_tag import EnhancedTag
+from .daily_spo2 import DailySpo2
 
 
 class OuraClient:
@@ -44,6 +45,7 @@ class OuraClient:
         self.tag = Tag(self)
         self.workout = Workout(self)
         self.enhanced_tag = EnhancedTag(self)
+        self.daily_spo2 = DailySpo2(self)
 
     def _make_request(
         self,

@@ -13,7 +13,8 @@ from oura_api_client.models.sleep import SleepResponse, SleepModel
 from oura_api_client.models.session import SessionResponse, SessionModel
 from oura_api_client.models.tag import TagResponse, TagModel
 from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
-from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel # Added EnhancedTag models
+from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel
+from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model, DailySpO2AggregatedValuesModel # Added DailySpO2 models
 import requests
 from requests.exceptions import RequestException
 
@@ -38,7 +39,8 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.session)
         self.assertIsNotNone(self.client.tag)
         self.assertIsNotNone(self.client.workout)
-        self.assertIsNotNone(self.client.enhanced_tag) # Added enhanced_tag
+        self.assertIsNotNone(self.client.enhanced_tag)
+        self.assertIsNotNone(self.client.daily_spo2) # Added daily_spo2
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -1222,3 +1224,134 @@ class TestEnhancedTag(unittest.TestCase):
         document_id = "test_enhanced_tag_single_error"
         with self.assertRaises(RequestException):
             self.client.enhanced_tag.get_enhanced_tag_document(document_id=document_id)
+
+
+class TestDailySpo2(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_daily_spo2_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "spo2_1",
+                "day": "2024-03-10",
+                "spo2_percentage": 97.5,
+                "aggregated_values": {"average": 97.5},
+                "timestamp": "2024-03-11T00:00:00+00:00"
+            },
+            {
+                "id": "spo2_2",
+                "day": "2024-03-11",
+                "aggregated_values": {"average": 98.0},
+                "timestamp": "2024-03-12T00:00:00+00:00"
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_spo2_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        daily_spo2_response = self.client.daily_spo2.get_daily_spo2_documents(
+            start_date=start_date, end_date=end_date, next_token="test_spo2_token"
+        )
+
+        self.assertIsInstance(daily_spo2_response, DailySpO2Response)
+        self.assertEqual(len(daily_spo2_response.data), 2)
+        self.assertIsInstance(daily_spo2_response.data[0], DailySpO2Model)
+        if daily_spo2_response.data[0].aggregated_values: # Check if aggregated_values exists
+            self.assertIsInstance(daily_spo2_response.data[0].aggregated_values, DailySpO2AggregatedValuesModel)
+        self.assertEqual(daily_spo2_response.next_token, "next_spo2_token")
+        self.assertEqual(daily_spo2_response.data[0].spo2_percentage, 97.5)
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_spo2_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "spo2_str_date",
+                "day": "2024-03-10",
+                "aggregated_values": {"average": 96.0},
+                "timestamp": "2024-03-11T00:00:00+00:00"
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.daily_spo2.get_daily_spo2_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.daily_spo2.get_daily_spo2_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_spo2_single",
+            "day": "2024-03-10",
+            "spo2_percentage": 98.2,
+            "aggregated_values": {"average": 98.2},
+            "timestamp": "2024-03-11T00:00:00+00:00"
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_spo2_single"
+        daily_spo2_document = self.client.daily_spo2.get_daily_spo2_document(document_id=document_id)
+
+        self.assertIsInstance(daily_spo2_document, DailySpO2Model)
+        self.assertEqual(daily_spo2_document.id, document_id)
+        self.assertEqual(daily_spo2_document.spo2_percentage, 98.2)
+        if daily_spo2_document.aggregated_values:
+            self.assertEqual(daily_spo2_document.aggregated_values.average, 98.2)
+        self.assertEqual(daily_spo2_document.timestamp, datetime.fromisoformat("2024-03-11T00:00:00+00:00"))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_spo2_single_error"
+        with self.assertRaises(RequestException):
+            self.client.daily_spo2.get_daily_spo2_document(document_id=document_id)
