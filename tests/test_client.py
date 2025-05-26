@@ -14,7 +14,8 @@ from oura_api_client.models.session import SessionResponse, SessionModel
 from oura_api_client.models.tag import TagResponse, TagModel
 from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
 from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel
-from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model, DailySpO2AggregatedValuesModel # Added DailySpO2 models
+from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model, DailySpO2AggregatedValuesModel
+from oura_api_client.models.sleep_time import SleepTimeResponse, SleepTimeModel, SleepTimeWindow, SleepTimeRecommendation, SleepTimeStatus # Added SleepTime models
 import requests
 from requests.exceptions import RequestException
 
@@ -40,7 +41,8 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.tag)
         self.assertIsNotNone(self.client.workout)
         self.assertIsNotNone(self.client.enhanced_tag)
-        self.assertIsNotNone(self.client.daily_spo2) # Added daily_spo2
+        self.assertIsNotNone(self.client.daily_spo2)
+        self.assertIsNotNone(self.client.sleep_time) # Added sleep_time
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -1355,3 +1357,146 @@ class TestDailySpo2(unittest.TestCase):
         document_id = "test_spo2_single_error"
         with self.assertRaises(RequestException):
             self.client.daily_spo2.get_daily_spo2_document(document_id=document_id)
+
+
+class TestSleepTime(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_sleep_time_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "st_1",
+                "day": "2024-03-10",
+                "optimal_bedtime": {"start_offset": -1800, "end_offset": 3600, "day_light_saving_time": 0},
+                "recommendation": {"recommendation": "go_to_bed_earlier"},
+                "status": {"status": "slightly_late"},
+                "timestamp": "2024-03-10T04:00:00+00:00"
+            },
+            {
+                "id": "st_2",
+                "day": "2024-03-11",
+                "optimal_bedtime": {"start_offset": -1500, "end_offset": 3900}, # Missing day_light_saving_time to test Optional
+                "recommendation": {"recommendation": "maintain_consistent_schedule"},
+                "status": {"status": "optimal"},
+                "timestamp": "2024-03-11T04:00:00+00:00"
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_sleep_time_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        sleep_time_response = self.client.sleep_time.get_sleep_time_documents(
+            start_date=start_date, end_date=end_date, next_token="test_sleep_time_token"
+        )
+
+        self.assertIsInstance(sleep_time_response, SleepTimeResponse)
+        self.assertEqual(len(sleep_time_response.data), 2)
+        self.assertIsInstance(sleep_time_response.data[0], SleepTimeModel)
+        if sleep_time_response.data[0].optimal_bedtime:
+             self.assertIsInstance(sleep_time_response.data[0].optimal_bedtime, SleepTimeWindow)
+        if sleep_time_response.data[0].recommendation:
+            self.assertIsInstance(sleep_time_response.data[0].recommendation, SleepTimeRecommendation)
+        if sleep_time_response.data[0].status:
+            self.assertIsInstance(sleep_time_response.data[0].status, SleepTimeStatus)
+        self.assertEqual(sleep_time_response.next_token, "next_sleep_time_token")
+        self.assertEqual(sleep_time_response.data[0].day, date(2024,3,10))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep_time",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_sleep_time_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_time_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "st_str_date",
+                "day": "2024-03-10",
+                "optimal_bedtime": {"start_offset": -1800, "end_offset": 3600},
+                "timestamp": "2024-03-10T04:00:00+00:00"
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.sleep_time.get_sleep_time_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep_time",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_time_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.sleep_time.get_sleep_time_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_sleep_time_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_st_single",
+            "day": "2024-03-10",
+            "optimal_bedtime": {"start_offset": -1800, "end_offset": 3600, "day_light_saving_time": 0},
+            "recommendation": {"recommendation": "go_to_bed_earlier"},
+            "status": {"status": "slightly_late"},
+            "timestamp": "2024-03-10T04:00:00+00:00"
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_st_single"
+        sleep_time_document = self.client.sleep_time.get_sleep_time_document(document_id=document_id)
+
+        self.assertIsInstance(sleep_time_document, SleepTimeModel)
+        self.assertEqual(sleep_time_document.id, document_id)
+        if sleep_time_document.optimal_bedtime:
+            self.assertEqual(sleep_time_document.optimal_bedtime.start_offset, -1800)
+        if sleep_time_document.recommendation:
+            self.assertEqual(sleep_time_document.recommendation.recommendation, "go_to_bed_earlier")
+        if sleep_time_document.status:
+            self.assertEqual(sleep_time_document.status.status, "slightly_late")
+        self.assertEqual(sleep_time_document.timestamp, datetime.fromisoformat("2024-03-10T04:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep_time/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_time_document_error(self, mock_get):
+        # As per the implementation note, this endpoint might not exist.
+        # If it doesn't, the API would return a 404, which _make_request would raise as an HTTPError (a subclass of RequestException).
+        mock_get.side_effect = RequestException("API error or Not Found") 
+        document_id = "test_st_single_error"
+        with self.assertRaises(RequestException):
+            self.client.sleep_time.get_sleep_time_document(document_id=document_id)
