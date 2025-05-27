@@ -2,10 +2,23 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from datetime import datetime
+from datetime import datetime, date
 
 from oura_api_client.api.client import OuraClient
 from oura_api_client.models.heartrate import HeartRateResponse
+from oura_api_client.models.daily_activity import DailyActivityResponse, DailyActivityModel, ActivityContributors
+from oura_api_client.models.daily_sleep import DailySleepResponse, DailySleepModel, SleepContributors
+from oura_api_client.models.daily_readiness import DailyReadinessResponse, DailyReadinessModel, ReadinessContributors
+from oura_api_client.models.sleep import SleepResponse, SleepModel
+from oura_api_client.models.session import SessionResponse, SessionModel
+from oura_api_client.models.tag import TagResponse, TagModel
+from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
+from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel
+from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model, DailySpO2AggregatedValuesModel
+from oura_api_client.models.sleep_time import SleepTimeResponse, SleepTimeModel, SleepTimeWindow, SleepTimeRecommendation, SleepTimeStatus
+from oura_api_client.models.rest_mode_period import RestModePeriodResponse, RestModePeriodModel # Added RestModePeriod models
+import requests
+from requests.exceptions import RequestException
 
 
 class TestOuraClient(unittest.TestCase):
@@ -21,6 +34,17 @@ class TestOuraClient(unittest.TestCase):
         self.assertEqual(self.client.headers["Authorization"], "Bearer test_token")
         self.assertIsNotNone(self.client.heartrate)
         self.assertIsNotNone(self.client.personal)
+        self.assertIsNotNone(self.client.daily_activity)
+        self.assertIsNotNone(self.client.daily_sleep)
+        self.assertIsNotNone(self.client.daily_readiness)
+        self.assertIsNotNone(self.client.sleep)
+        self.assertIsNotNone(self.client.session)
+        self.assertIsNotNone(self.client.tag)
+        self.assertIsNotNone(self.client.workout)
+        self.assertIsNotNone(self.client.enhanced_tag)
+        self.assertIsNotNone(self.client.daily_spo2)
+        self.assertIsNotNone(self.client.sleep_time)
+        self.assertIsNotNone(self.client.rest_mode_period) # Added rest_mode_period
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -65,3 +89,1547 @@ class TestOuraClient(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDailyActivity(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_daily_activity_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "test_id_1",
+                "day": "2024-03-10",
+                "timestamp": "2024-03-10T00:00:00+00:00",
+            },
+            {
+                "id": "test_id_2",
+                "day": "2024-03-11",
+                "timestamp": "2024-03-11T00:00:00+00:00",
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "test_next_token"}
+        # Configure the mock_get object to simulate a successful response
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None # Simulate no HTTP error
+        mock_response.json.return_value = mock_response_json # Set the JSON response
+        mock_get.return_value = mock_response
+
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        daily_activity_response = self.client.daily_activity.get_daily_activity_documents(
+            start_date=start_date, end_date=end_date, next_token="test_token"
+        )
+
+        self.assertIsInstance(daily_activity_response, DailyActivityResponse)
+        self.assertEqual(len(daily_activity_response.data), 2)
+        self.assertIsInstance(daily_activity_response.data[0], DailyActivityModel)
+        self.assertEqual(daily_activity_response.next_token, "test_next_token")
+        # Use self.client.client._make_request for assertion if client.get is not available
+        actual_call_url = mock_get.call_args[0][0]
+        expected_url = f"{self.client.BASE_URL}/v2/usercollection/daily_activity"
+        self.assertTrue(actual_call_url.endswith(expected_url))
+
+        called_params = mock_get.call_args[1]['params']
+        expected_params = {
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_token",
+            }
+        self.assertEqual(called_params, expected_params)
+
+
+    @patch("requests.get")
+    def test_get_daily_activity_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "test_id_1",
+                "day": "2024-03-10",
+                "timestamp": "2024-03-10T00:00:00+00:00",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.daily_activity.get_daily_activity_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+        actual_call_url = mock_get.call_args[0][0]
+        expected_url = f"{self.client.BASE_URL}/v2/usercollection/daily_activity"
+        self.assertTrue(actual_call_url.endswith(expected_url))
+
+        called_params = mock_get.call_args[1]['params']
+        expected_params = {"start_date": start_date_str, "end_date": end_date_str}
+        self.assertEqual(called_params, expected_params)
+
+
+    @patch("requests.get")
+    def test_get_daily_activity_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.daily_activity.get_daily_activity_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_daily_activity_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_document_id",
+            "class_5_min": "test_class_5_min",
+            "score": 80,
+            "active_calories": 500,
+            "average_met_minutes": 2.5,
+            "contributors": {
+                "meet_daily_targets": 1,
+                "move_every_hour": 1,
+                "recovery_time": 1,
+                "stay_active": 1,
+                "training_frequency": 1,
+                "training_volume": 1,
+            },
+            "equivalent_walking_distance": 5000,
+            "high_activity_met_minutes": 30,
+            "high_activity_time": 600,
+            "inactivity_alerts": 2,
+            "low_activity_met_minutes": 60,
+            "low_activity_time": 1200,
+            "medium_activity_met_minutes": 90,
+            "medium_activity_time": 1800,
+            "met": "test_met",
+            "meters_to_target": 1000,
+            "non_wear_time": 300,
+            "resting_time": 3600,
+            "sedentary_met_minutes": 120,
+            "sedentary_time": 2400,
+            "steps": 10000,
+            "target_calories": 600,
+            "target_meters": 6000,
+            "total_calories": 2500,
+            "day": "2024-03-10",
+            "timestamp": "2024-03-10T12:00:00+00:00",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+        
+        document_id = "test_document_id"
+        daily_activity_document = self.client.daily_activity.get_daily_activity_document(
+            document_id=document_id
+        )
+        self.assertIsInstance(daily_activity_document, DailyActivityModel)
+        self.assertEqual(daily_activity_document.id, document_id)
+        self.assertIsInstance(daily_activity_document.contributors, ActivityContributors)
+        
+        actual_call_url = mock_get.call_args[0][0]
+        expected_url = f"{self.client.BASE_URL}/v2/usercollection/daily_activity/{document_id}"
+        self.assertTrue(actual_call_url.endswith(expected_url))
+        
+        called_params = mock_get.call_args[1]['params']
+        self.assertEqual(called_params, None)
+
+
+    @patch("requests.get")
+    def test_get_daily_activity_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_document_id"
+        with self.assertRaises(RequestException):
+            self.client.daily_activity.get_daily_activity_document(document_id=document_id)
+
+
+class TestDailySleep(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_daily_sleep_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "sleep_id_1",
+                "contributors": {
+                    "deep_sleep": 70,
+                    "efficiency": 80,
+                    "latency": 90,
+                    "rem_sleep": 60,
+                    "restfulness": 75,
+                    "timing": 85,
+                    "total_sleep": 95,
+                },
+                "day": "2024-03-10",
+                "timestamp": "2024-03-10T22:00:00+00:00",
+            },
+            {
+                "id": "sleep_id_2",
+                "contributors": {
+                    "deep_sleep": 75,
+                    "efficiency": 85,
+                    "latency": 95,
+                    "rem_sleep": 65,
+                    "restfulness": 80,
+                    "timing": 90,
+                    "total_sleep": 100,
+                },
+                "day": "2024-03-11",
+                "timestamp": "2024-03-11T22:00:00+00:00",
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_sleep_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        daily_sleep_response = self.client.daily_sleep.get_daily_sleep_documents(
+            start_date=start_date, end_date=end_date, next_token="test_sleep_token"
+        )
+
+        self.assertIsInstance(daily_sleep_response, DailySleepResponse)
+        self.assertEqual(len(daily_sleep_response.data), 2)
+        self.assertIsInstance(daily_sleep_response.data[0], DailySleepModel)
+        self.assertIsInstance(daily_sleep_response.data[0].contributors, SleepContributors)
+        self.assertEqual(daily_sleep_response.next_token, "next_sleep_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_sleep",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_sleep_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_daily_sleep_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "sleep_id_1",
+                "contributors": {"deep_sleep": 70}, 
+                "day": "2024-03-10",
+                "timestamp": "2024-03-10T22:00:00+00:00",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.daily_sleep.get_daily_sleep_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_sleep",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_sleep_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.daily_sleep.get_daily_sleep_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_daily_sleep_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_sleep_document_id",
+            "contributors": {
+                "deep_sleep": 70,
+                "efficiency": 80,
+                "latency": 90,
+                "rem_sleep": 60,
+                "restfulness": 75,
+                "timing": 85,
+                "total_sleep": 95,
+            },
+            "day": "2024-03-10",
+            "timestamp": "2024-03-10T22:00:00+00:00",
+            "score": 85,
+            "bedtime_end": "2024-03-11T07:00:00+00:00", 
+            "bedtime_start": "2024-03-10T22:00:00+00:00",
+            "type": "main_sleep",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_sleep_document_id"
+        daily_sleep_document = self.client.daily_sleep.get_daily_sleep_document(
+            document_id=document_id
+        )
+
+        self.assertIsInstance(daily_sleep_document, DailySleepModel)
+        self.assertEqual(daily_sleep_document.id, document_id)
+        self.assertIsInstance(daily_sleep_document.contributors, SleepContributors)
+        self.assertEqual(daily_sleep_document.score, 85)
+        self.assertEqual(daily_sleep_document.bedtime_end, datetime.fromisoformat("2024-03-11T07:00:00+00:00"))
+        self.assertEqual(daily_sleep_document.bedtime_start, datetime.fromisoformat("2024-03-10T22:00:00+00:00"))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_sleep/{document_id}",
+            headers=self.client.headers,
+            params=None, 
+        )
+
+    @patch("requests.get")
+    def test_get_daily_sleep_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_sleep_document_id"
+        with self.assertRaises(RequestException):
+            self.client.daily_sleep.get_daily_sleep_document(document_id=document_id)
+
+
+class TestDailyReadiness(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_daily_readiness_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "readiness_id_1",
+                "contributors": {"activity_balance": 60, "body_temperature": 70},
+                "day": "2024-03-10",
+                "score": 75,
+                "timestamp": "2024-03-10T00:00:00+00:00",
+            },
+            {
+                "id": "readiness_id_2",
+                "contributors": {"activity_balance": 65, "body_temperature": 75},
+                "day": "2024-03-11",
+                "score": 80,
+                "timestamp": "2024-03-11T00:00:00+00:00",
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_readiness_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        daily_readiness_response = self.client.daily_readiness.get_daily_readiness_documents(
+            start_date=start_date, end_date=end_date, next_token="test_readiness_token"
+        )
+
+        self.assertIsInstance(daily_readiness_response, DailyReadinessResponse)
+        self.assertEqual(len(daily_readiness_response.data), 2)
+        self.assertIsInstance(daily_readiness_response.data[0], DailyReadinessModel)
+        self.assertIsInstance(daily_readiness_response.data[0].contributors, ReadinessContributors)
+        self.assertEqual(daily_readiness_response.next_token, "next_readiness_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_readiness",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_readiness_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_daily_readiness_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "readiness_id_1",
+                "contributors": {"activity_balance": 60},
+                "day": "2024-03-10",
+                "score": 75,
+                "timestamp": "2024-03-10T00:00:00+00:00",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.daily_readiness.get_daily_readiness_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_readiness",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_readiness_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.daily_readiness.get_daily_readiness_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_daily_readiness_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_readiness_document_id",
+            "contributors": {
+                "activity_balance": 60,
+                "body_temperature": 70,
+                "hrv_balance": 80,
+                "previous_day_activity": 90,
+                "previous_night": 50,
+                "recovery_index": 65,
+                "resting_heart_rate": 75,
+                "sleep_balance": 85,
+            },
+            "day": "2024-03-10",
+            "score": 78,
+            "temperature_trend_deviation": 0.1,
+            "timestamp": "2024-03-10T00:00:00+00:00",
+            "activity_class_5_min": "some_activity_class", # New field
+            "hrv_balance_data": "some_hrv_data", # New field
+            "spo2_percentage": 98.5, # New field
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_readiness_document_id"
+        daily_readiness_document = self.client.daily_readiness.get_daily_readiness_document(
+            document_id=document_id
+        )
+
+        self.assertIsInstance(daily_readiness_document, DailyReadinessModel)
+        self.assertEqual(daily_readiness_document.id, document_id)
+        self.assertIsInstance(daily_readiness_document.contributors, ReadinessContributors)
+        self.assertEqual(daily_readiness_document.score, 78)
+        self.assertEqual(daily_readiness_document.activity_class_5_min, "some_activity_class")
+        self.assertEqual(daily_readiness_document.hrv_balance_data, "some_hrv_data")
+        self.assertEqual(daily_readiness_document.spo2_percentage, 98.5)
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_readiness/{document_id}",
+            headers=self.client.headers,
+            params=None, 
+        )
+
+    @patch("requests.get")
+    def test_get_daily_readiness_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_readiness_document_id"
+        with self.assertRaises(RequestException):
+            self.client.daily_readiness.get_daily_readiness_document(document_id=document_id)
+
+
+class TestSleep(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_sleep_documents(self, mock_get):
+        mock_contributors_data = { # Reused from DailySleep for consistency
+            "deep_sleep": 70, "efficiency": 80, "latency": 90, "rem_sleep": 60,
+            "restfulness": 75, "timing": 85, "total_sleep": 95,
+        }
+        mock_readiness_contributors_data = { # Reused from DailyReadiness
+            "activity_balance": 60, "body_temperature": 70, "hrv_balance": 80,
+            "previous_day_activity": 90, "previous_night": 50, "recovery_index": 65,
+            "resting_heart_rate": 75, "sleep_balance": 85,
+        }
+        mock_data = [
+            {
+                "id": "sleep_doc_1",
+                "average_breath": 14.5,
+                "average_heart_rate": 58.0,
+                "average_hrv": 65,
+                "awake_time": 3600,
+                "bedtime_end": "2024-03-11T07:00:00+00:00",
+                "bedtime_start": "2024-03-10T22:00:00+00:00",
+                "day": "2024-03-10",
+                "deep_sleep_duration": 7200,
+                "efficiency": 90,
+                "latency": 600,
+                "light_sleep_duration": 18000,
+                "period": 1,
+                "readiness": mock_readiness_contributors_data, # Nested model
+                "rem_sleep_duration": 3600,
+                "score": 85,
+                "contributors": mock_contributors_data, # Nested SleepContributors
+                "type": "main_sleep",
+                "timestamp": "2024-03-10T22:00:00+00:00", # Added timestamp for SleepModel
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_sleep_doc_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        sleep_response = self.client.sleep.get_sleep_documents(
+            start_date=start_date, end_date=end_date, next_token="test_sleep_doc_token"
+        )
+
+        self.assertIsInstance(sleep_response, SleepResponse)
+        self.assertEqual(len(sleep_response.data), 1)
+        self.assertIsInstance(sleep_response.data[0], SleepModel)
+        self.assertIsInstance(sleep_response.data[0].contributors, SleepContributors)
+        self.assertIsInstance(sleep_response.data[0].readiness, ReadinessContributors)
+        self.assertEqual(sleep_response.next_token, "next_sleep_doc_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_sleep_doc_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_documents_with_string_dates(self, mock_get):
+        # Simplified mock data for this test
+        mock_data = [{"id": "sleep_doc_str_date", "day": "2024-03-10", "contributors": {"deep_sleep": 1},"timestamp": "2024-03-10T22:00:00+00:00"}]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.sleep.get_sleep_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.sleep.get_sleep_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_sleep_document(self, mock_get):
+        mock_contributors_data = {"deep_sleep": 70}
+        mock_readiness_contributors_data = {"activity_balance": 60}
+        mock_response_json = {
+            "id": "test_sleep_doc_single",
+            "average_breath": 14.2,
+            "day": "2024-03-10",
+            "bedtime_end": "2024-03-11T07:30:00+00:00",
+            "bedtime_start": "2024-03-10T22:15:00+00:00",
+            "contributors": mock_contributors_data,
+            "readiness": mock_readiness_contributors_data,
+            "score": 88,
+            "type": "main_sleep",
+            "timestamp": "2024-03-10T22:15:00+00:00",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_sleep_doc_single"
+        sleep_document = self.client.sleep.get_sleep_document(document_id=document_id)
+
+        self.assertIsInstance(sleep_document, SleepModel)
+        self.assertEqual(sleep_document.id, document_id)
+        self.assertIsInstance(sleep_document.contributors, SleepContributors)
+        self.assertIsInstance(sleep_document.readiness, ReadinessContributors)
+        self.assertEqual(sleep_document.score, 88)
+        self.assertEqual(sleep_document.bedtime_end, datetime.fromisoformat("2024-03-11T07:30:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_sleep_doc_single_error"
+        with self.assertRaises(RequestException):
+            self.client.sleep.get_sleep_document(document_id=document_id)
+
+
+class TestSession(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_session_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "session_doc_1",
+                "day": "2024-03-10",
+                "start_datetime": "2024-03-10T10:00:00+00:00",
+                "end_datetime": "2024-03-10T10:30:00+00:00",
+                "type": "meditation",
+                "mood": "good",
+                "duration": 1800,
+            },
+            {
+                "id": "session_doc_2",
+                "day": "2024-03-11",
+                "start_datetime": "2024-03-11T14:00:00+00:00",
+                "end_datetime": "2024-03-11T14:20:00+00:00",
+                "type": "nap",
+                "duration": 1200,
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_session_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        session_response = self.client.session.get_session_documents(
+            start_date=start_date, end_date=end_date, next_token="test_session_token"
+        )
+
+        self.assertIsInstance(session_response, SessionResponse)
+        self.assertEqual(len(session_response.data), 2)
+        self.assertIsInstance(session_response.data[0], SessionModel)
+        self.assertEqual(session_response.next_token, "next_session_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/session",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_session_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_session_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "session_doc_str",
+                "day": "2024-03-10",
+                "start_datetime": "2024-03-10T10:00:00+00:00",
+                "end_datetime": "2024-03-10T10:30:00+00:00",
+                "type": "meditation",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.session.get_session_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/session",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_session_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.session.get_session_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_session_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_session_single",
+            "day": "2024-03-10",
+            "start_datetime": "2024-03-10T15:00:00+00:00",
+            "end_datetime": "2024-03-10T15:45:00+00:00",
+            "type": "workout",
+            "mood": "great",
+            "duration": 2700,
+            "energy": 250.0,
+            "stress": 10.5,
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_session_single"
+        session_document = self.client.session.get_session_document(document_id=document_id)
+
+        self.assertIsInstance(session_document, SessionModel)
+        self.assertEqual(session_document.id, document_id)
+        self.assertEqual(session_document.type, "workout")
+        self.assertEqual(session_document.mood, "great")
+        self.assertEqual(session_document.duration, 2700)
+        self.assertEqual(session_document.start_datetime, datetime.fromisoformat("2024-03-10T15:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/session/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_session_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_session_single_error"
+        with self.assertRaises(RequestException):
+            self.client.session.get_session_document(document_id=document_id)
+
+
+class TestTag(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_tag_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_doc_1",
+                "day": "2024-03-10",
+                "text": "Morning workout",
+                "timestamp": "2024-03-10T09:00:00+00:00",
+            },
+            {
+                "id": "tag_doc_2",
+                "day": "2024-03-11",
+                "text": "Big presentation",
+                "timestamp": "2024-03-11T14:00:00+00:00",
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_tag_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        tag_response = self.client.tag.get_tag_documents(
+            start_date=start_date, end_date=end_date, next_token="test_tag_token"
+        )
+
+        self.assertIsInstance(tag_response, TagResponse)
+        self.assertEqual(len(tag_response.data), 2)
+        self.assertIsInstance(tag_response.data[0], TagModel)
+        self.assertEqual(tag_response.next_token, "next_tag_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/tag",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_tag_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_tag_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_doc_str",
+                "day": "2024-03-10",
+                "text": "String date test",
+                "timestamp": "2024-03-10T09:00:00+00:00",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.tag.get_tag_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/tag",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_tag_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.tag.get_tag_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_tag_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_tag_single",
+            "day": "2024-03-10",
+            "text": "Single tag test",
+            "timestamp": "2024-03-10T11:00:00+00:00",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_tag_single"
+        tag_document = self.client.tag.get_tag_document(document_id=document_id)
+
+        self.assertIsInstance(tag_document, TagModel)
+        self.assertEqual(tag_document.id, document_id)
+        self.assertEqual(tag_document.text, "Single tag test")
+        self.assertEqual(tag_document.timestamp, datetime.fromisoformat("2024-03-10T11:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/tag/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_tag_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_tag_single_error"
+        with self.assertRaises(RequestException):
+            self.client.tag.get_tag_document(document_id=document_id)
+
+
+class TestWorkout(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_workout_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "workout_doc_1",
+                "activity": "running",
+                "calories": 300.5,
+                "day": "2024-03-10",
+                "distance": 5000.0,
+                "end_datetime": "2024-03-10T08:30:00+00:00",
+                "intensity": "moderate",
+                "source": "manual",
+                "start_datetime": "2024-03-10T08:00:00+00:00",
+            },
+            {
+                "id": "workout_doc_2",
+                "activity": "yoga",
+                "day": "2024-03-11",
+                "end_datetime": "2024-03-11T17:00:00+00:00",
+                "intensity": "easy",
+                "source": "oura_app",
+                "start_datetime": "2024-03-11T16:00:00+00:00",
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_workout_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        workout_response = self.client.workout.get_workout_documents(
+            start_date=start_date, end_date=end_date, next_token="test_workout_token"
+        )
+
+        self.assertIsInstance(workout_response, WorkoutResponse)
+        self.assertEqual(len(workout_response.data), 2)
+        self.assertIsInstance(workout_response.data[0], WorkoutModel)
+        self.assertEqual(workout_response.next_token, "next_workout_token")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/workout",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_workout_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_workout_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "workout_doc_str",
+                "activity": "cycling",
+                "day": "2024-03-10",
+                "end_datetime": "2024-03-10T18:00:00+00:00",
+                "intensity": "hard",
+                "source": "strava",
+                "start_datetime": "2024-03-10T17:00:00+00:00",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.workout.get_workout_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/workout",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_workout_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.workout.get_workout_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_workout_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_workout_single",
+            "activity": "swimming",
+            "calories": 400.0,
+            "day": "2024-03-10",
+            "distance": 1000.0,
+            "end_datetime": "2024-03-10T12:45:00+00:00",
+            "energy": 1673.6, # Example energy in kJ
+            "intensity": "moderate",
+            "label": "Pool session",
+            "source": "apple_health",
+            "start_datetime": "2024-03-10T12:00:00+00:00",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_workout_single"
+        workout_document = self.client.workout.get_workout_document(document_id=document_id)
+
+        self.assertIsInstance(workout_document, WorkoutModel)
+        self.assertEqual(workout_document.id, document_id)
+        self.assertEqual(workout_document.activity, "swimming")
+        self.assertEqual(workout_document.intensity, "moderate")
+        self.assertEqual(workout_document.source, "apple_health")
+        self.assertEqual(workout_document.start_datetime, datetime.fromisoformat("2024-03-10T12:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/workout/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_workout_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_workout_single_error"
+        with self.assertRaises(RequestException):
+            self.client.workout.get_workout_document(document_id=document_id)
+
+
+class TestEnhancedTag(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_1",
+                "tag_type_code": "common_cold",
+                "start_time": "2024-03-10T00:00:00+00:00",
+                "end_time": "2024-03-12T00:00:00+00:00",
+                "start_day": "2024-03-10",
+                "end_day": "2024-03-12",
+                "comment": "Feeling under the weather."
+            },
+            {
+                "id": "tag_2",
+                "tag_type_code": "vacation",
+                "start_time": "2024-03-15T00:00:00+00:00",
+                "start_day": "2024-03-15",
+                "comment": "Beach time!"
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_enhanced_tag_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-01" # Using different dates for query
+        end_date_str = "2024-03-31"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        enhanced_tag_response = self.client.enhanced_tag.get_enhanced_tag_documents(
+            start_date=start_date, end_date=end_date, next_token="test_enhanced_tag_token"
+        )
+
+        self.assertIsInstance(enhanced_tag_response, EnhancedTagResponse)
+        self.assertEqual(len(enhanced_tag_response.data), 2)
+        self.assertIsInstance(enhanced_tag_response.data[0], EnhancedTagModel)
+        self.assertEqual(enhanced_tag_response.next_token, "next_enhanced_tag_token")
+        self.assertEqual(enhanced_tag_response.data[0].tag_type_code, "common_cold")
+        self.assertEqual(enhanced_tag_response.data[1].start_day, date(2024, 3, 15))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_enhanced_tag_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "tag_str_date",
+                "tag_type_code": "travel",
+                "start_time": "2024-03-05T00:00:00+00:00",
+                "start_day": "2024-03-05",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-01"
+        end_date_str = "2024-03-31"
+
+        self.client.enhanced_tag.get_enhanced_tag_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.enhanced_tag.get_enhanced_tag_documents(
+                start_date="2024-03-01", end_date="2024-03-31"
+            )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_enhanced_tag_single",
+            "tag_type_code": "stress",
+            "start_time": "2024-03-10T10:00:00+00:00",
+            "end_time": "2024-03-10T18:00:00+00:00",
+            "start_day": "2024-03-10",
+            "end_day": "2024-03-10",
+            "comment": "Tough day at work."
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_enhanced_tag_single"
+        enhanced_tag_document = self.client.enhanced_tag.get_enhanced_tag_document(document_id=document_id)
+
+        self.assertIsInstance(enhanced_tag_document, EnhancedTagModel)
+        self.assertEqual(enhanced_tag_document.id, document_id)
+        self.assertEqual(enhanced_tag_document.tag_type_code, "stress")
+        self.assertEqual(enhanced_tag_document.comment, "Tough day at work.")
+        self.assertEqual(enhanced_tag_document.start_time, datetime.fromisoformat("2024-03-10T10:00:00+00:00"))
+        self.assertEqual(enhanced_tag_document.end_day, date(2024, 3, 10))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_enhanced_tag_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_enhanced_tag_single_error"
+        with self.assertRaises(RequestException):
+            self.client.enhanced_tag.get_enhanced_tag_document(document_id=document_id)
+
+
+class TestDailySpo2(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_daily_spo2_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "spo2_1",
+                "day": "2024-03-10",
+                "spo2_percentage": 97.5,
+                "aggregated_values": {"average": 97.5},
+                "timestamp": "2024-03-11T00:00:00+00:00"
+            },
+            {
+                "id": "spo2_2",
+                "day": "2024-03-11",
+                "aggregated_values": {"average": 98.0},
+                "timestamp": "2024-03-12T00:00:00+00:00"
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_spo2_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        daily_spo2_response = self.client.daily_spo2.get_daily_spo2_documents(
+            start_date=start_date, end_date=end_date, next_token="test_spo2_token"
+        )
+
+        self.assertIsInstance(daily_spo2_response, DailySpO2Response)
+        self.assertEqual(len(daily_spo2_response.data), 2)
+        self.assertIsInstance(daily_spo2_response.data[0], DailySpO2Model)
+        if daily_spo2_response.data[0].aggregated_values: # Check if aggregated_values exists
+            self.assertIsInstance(daily_spo2_response.data[0].aggregated_values, DailySpO2AggregatedValuesModel)
+        self.assertEqual(daily_spo2_response.next_token, "next_spo2_token")
+        self.assertEqual(daily_spo2_response.data[0].spo2_percentage, 97.5)
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_spo2_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "spo2_str_date",
+                "day": "2024-03-10",
+                "aggregated_values": {"average": 96.0},
+                "timestamp": "2024-03-11T00:00:00+00:00"
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.daily_spo2.get_daily_spo2_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.daily_spo2.get_daily_spo2_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_spo2_single",
+            "day": "2024-03-10",
+            "spo2_percentage": 98.2,
+            "aggregated_values": {"average": 98.2},
+            "timestamp": "2024-03-11T00:00:00+00:00"
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_spo2_single"
+        daily_spo2_document = self.client.daily_spo2.get_daily_spo2_document(document_id=document_id)
+
+        self.assertIsInstance(daily_spo2_document, DailySpO2Model)
+        self.assertEqual(daily_spo2_document.id, document_id)
+        self.assertEqual(daily_spo2_document.spo2_percentage, 98.2)
+        if daily_spo2_document.aggregated_values:
+            self.assertEqual(daily_spo2_document.aggregated_values.average, 98.2)
+        self.assertEqual(daily_spo2_document.timestamp, datetime.fromisoformat("2024-03-11T00:00:00+00:00"))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_daily_spo2_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_spo2_single_error"
+        with self.assertRaises(RequestException):
+            self.client.daily_spo2.get_daily_spo2_document(document_id=document_id)
+
+
+class TestSleepTime(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_sleep_time_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "st_1",
+                "day": "2024-03-10",
+                "optimal_bedtime": {"start_offset": -1800, "end_offset": 3600, "day_light_saving_time": 0},
+                "recommendation": {"recommendation": "go_to_bed_earlier"},
+                "status": {"status": "slightly_late"},
+                "timestamp": "2024-03-10T04:00:00+00:00"
+            },
+            {
+                "id": "st_2",
+                "day": "2024-03-11",
+                "optimal_bedtime": {"start_offset": -1500, "end_offset": 3900}, # Missing day_light_saving_time to test Optional
+                "recommendation": {"recommendation": "maintain_consistent_schedule"},
+                "status": {"status": "optimal"},
+                "timestamp": "2024-03-11T04:00:00+00:00"
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_sleep_time_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        sleep_time_response = self.client.sleep_time.get_sleep_time_documents(
+            start_date=start_date, end_date=end_date, next_token="test_sleep_time_token"
+        )
+
+        self.assertIsInstance(sleep_time_response, SleepTimeResponse)
+        self.assertEqual(len(sleep_time_response.data), 2)
+        self.assertIsInstance(sleep_time_response.data[0], SleepTimeModel)
+        if sleep_time_response.data[0].optimal_bedtime:
+             self.assertIsInstance(sleep_time_response.data[0].optimal_bedtime, SleepTimeWindow)
+        if sleep_time_response.data[0].recommendation:
+            self.assertIsInstance(sleep_time_response.data[0].recommendation, SleepTimeRecommendation)
+        if sleep_time_response.data[0].status:
+            self.assertIsInstance(sleep_time_response.data[0].status, SleepTimeStatus)
+        self.assertEqual(sleep_time_response.next_token, "next_sleep_time_token")
+        self.assertEqual(sleep_time_response.data[0].day, date(2024,3,10))
+
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep_time",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_sleep_time_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_time_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "st_str_date",
+                "day": "2024-03-10",
+                "optimal_bedtime": {"start_offset": -1800, "end_offset": 3600},
+                "timestamp": "2024-03-10T04:00:00+00:00"
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.sleep_time.get_sleep_time_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep_time",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_time_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.sleep_time.get_sleep_time_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_sleep_time_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_st_single",
+            "day": "2024-03-10",
+            "optimal_bedtime": {"start_offset": -1800, "end_offset": 3600, "day_light_saving_time": 0},
+            "recommendation": {"recommendation": "go_to_bed_earlier"},
+            "status": {"status": "slightly_late"},
+            "timestamp": "2024-03-10T04:00:00+00:00"
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_st_single"
+        sleep_time_document = self.client.sleep_time.get_sleep_time_document(document_id=document_id)
+
+        self.assertIsInstance(sleep_time_document, SleepTimeModel)
+        self.assertEqual(sleep_time_document.id, document_id)
+        if sleep_time_document.optimal_bedtime:
+            self.assertEqual(sleep_time_document.optimal_bedtime.start_offset, -1800)
+        if sleep_time_document.recommendation:
+            self.assertEqual(sleep_time_document.recommendation.recommendation, "go_to_bed_earlier")
+        if sleep_time_document.status:
+            self.assertEqual(sleep_time_document.status.status, "slightly_late")
+        self.assertEqual(sleep_time_document.timestamp, datetime.fromisoformat("2024-03-10T04:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/sleep_time/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_sleep_time_document_error(self, mock_get):
+        # As per the implementation note, this endpoint might not exist.
+        # If it doesn't, the API would return a 404, which _make_request would raise as an HTTPError (a subclass of RequestException).
+        mock_get.side_effect = RequestException("API error or Not Found") 
+        document_id = "test_st_single_error"
+        with self.assertRaises(RequestException):
+            self.client.sleep_time.get_sleep_time_document(document_id=document_id)
+
+
+class TestRestModePeriod(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "rmp_1",
+                "day": "2024-03-10",
+                "start_time": "2024-03-10T10:00:00+00:00",
+                "end_time": "2024-03-10T18:00:00+00:00",
+                "rest_mode_state": "on_demand_rest",
+                "baseline_heart_rate": 60,
+            },
+            {
+                "id": "rmp_2",
+                "day": "2024-03-11",
+                "start_time": "2024-03-11T09:00:00+00:00",
+                "rest_mode_state": "recovering_from_illness",
+                "baseline_hrv": 50,
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_rmp_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        rest_mode_response = self.client.rest_mode_period.get_rest_mode_period_documents(
+            start_date=start_date, end_date=end_date, next_token="test_rmp_token"
+        )
+
+        self.assertIsInstance(rest_mode_response, RestModePeriodResponse)
+        self.assertEqual(len(rest_mode_response.data), 2)
+        self.assertIsInstance(rest_mode_response.data[0], RestModePeriodModel)
+        self.assertEqual(rest_mode_response.next_token, "next_rmp_token")
+        self.assertEqual(rest_mode_response.data[0].rest_mode_state, "on_demand_rest")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_rmp_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "rmp_str_date",
+                "day": "2024-03-10",
+                "start_time": "2024-03-10T10:00:00+00:00",
+                "rest_mode_state": "on_demand_rest",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.rest_mode_period.get_rest_mode_period_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.rest_mode_period.get_rest_mode_period_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_rmp_single",
+            "day": "2024-03-10",
+            "start_time": "2024-03-10T10:00:00+00:00",
+            "end_time": "2024-03-10T18:00:00+00:00",
+            "rest_mode_state": "recovering_from_illness",
+            "baseline_heart_rate": 62,
+            "baseline_hrv": 48,
+            "baseline_skin_temperature": -0.2,
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_rmp_single"
+        rmp_document = self.client.rest_mode_period.get_rest_mode_period_document(document_id=document_id)
+
+        self.assertIsInstance(rmp_document, RestModePeriodModel)
+        self.assertEqual(rmp_document.id, document_id)
+        self.assertEqual(rmp_document.rest_mode_state, "recovering_from_illness")
+        self.assertEqual(rmp_document.baseline_hrv, 48)
+        self.assertEqual(rmp_document.start_time, datetime.fromisoformat("2024-03-10T10:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_rmp_single_error"
+        with self.assertRaises(RequestException):
+            self.client.rest_mode_period.get_rest_mode_period_document(document_id=document_id)

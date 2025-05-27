@@ -6,6 +6,18 @@ from datetime import date, datetime
 
 from .heartrate import HeartRateEndpoints
 from .personal import PersonalEndpoints
+from .daily_activity import DailyActivity
+from .daily_sleep import DailySleep
+from .daily_readiness import DailyReadiness
+from .sleep import Sleep
+from .session import Session
+from .tag import Tag
+from .workout import Workout
+from .enhanced_tag import EnhancedTag
+from .daily_spo2 import DailySpo2
+from .sleep_time import SleepTime
+from .rest_mode_period import RestModePeriod
+from .ring_configuration import RingConfiguration
 
 
 class OuraClient:
@@ -28,6 +40,18 @@ class OuraClient:
         # Initialize endpoint modules
         self.heartrate = HeartRateEndpoints(self)
         self.personal = PersonalEndpoints(self)
+        self.daily_activity = DailyActivity(self)
+        self.daily_sleep = DailySleep(self)
+        self.daily_readiness = DailyReadiness(self)
+        self.sleep = Sleep(self)
+        self.session = Session(self)
+        self.tag = Tag(self)
+        self.workout = Workout(self)
+        self.enhanced_tag = EnhancedTag(self)
+        self.daily_spo2 = DailySpo2(self)
+        self.sleep_time = SleepTime(self)
+        self.rest_mode_period = RestModePeriod(self)
+        self.ring_configuration = RingConfiguration(self)
 
     def _make_request(
         self,
