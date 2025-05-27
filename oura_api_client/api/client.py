@@ -17,6 +17,7 @@ from .enhanced_tag import EnhancedTag
 from .daily_spo2 import DailySpo2
 from .sleep_time import SleepTime
 from .rest_mode_period import RestModePeriod
+from .ring_configuration import RingConfiguration
 
 
 class OuraClient:
@@ -50,6 +51,7 @@ class OuraClient:
         self.daily_spo2 = DailySpo2(self)
         self.sleep_time = SleepTime(self)
         self.rest_mode_period = RestModePeriod(self)
+        self.ring_configuration = RingConfiguration(self)
 
     def _make_request(
         self,
