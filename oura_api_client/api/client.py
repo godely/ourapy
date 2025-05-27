@@ -16,6 +16,7 @@ from .workout import Workout
 from .enhanced_tag import EnhancedTag
 from .daily_spo2 import DailySpo2
 from .sleep_time import SleepTime
+from .rest_mode_period import RestModePeriod
 
 
 class OuraClient:
@@ -48,6 +49,7 @@ class OuraClient:
         self.enhanced_tag = EnhancedTag(self)
         self.daily_spo2 = DailySpo2(self)
         self.sleep_time = SleepTime(self)
+        self.rest_mode_period = RestModePeriod(self)
 
     def _make_request(
         self,

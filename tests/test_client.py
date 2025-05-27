@@ -15,7 +15,8 @@ from oura_api_client.models.tag import TagResponse, TagModel
 from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
 from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel
 from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model, DailySpO2AggregatedValuesModel
-from oura_api_client.models.sleep_time import SleepTimeResponse, SleepTimeModel, SleepTimeWindow, SleepTimeRecommendation, SleepTimeStatus # Added SleepTime models
+from oura_api_client.models.sleep_time import SleepTimeResponse, SleepTimeModel, SleepTimeWindow, SleepTimeRecommendation, SleepTimeStatus
+from oura_api_client.models.rest_mode_period import RestModePeriodResponse, RestModePeriodModel # Added RestModePeriod models
 import requests
 from requests.exceptions import RequestException
 
@@ -42,7 +43,8 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.workout)
         self.assertIsNotNone(self.client.enhanced_tag)
         self.assertIsNotNone(self.client.daily_spo2)
-        self.assertIsNotNone(self.client.sleep_time) # Added sleep_time
+        self.assertIsNotNone(self.client.sleep_time)
+        self.assertIsNotNone(self.client.rest_mode_period) # Added rest_mode_period
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -1500,3 +1502,134 @@ class TestSleepTime(unittest.TestCase):
         document_id = "test_st_single_error"
         with self.assertRaises(RequestException):
             self.client.sleep_time.get_sleep_time_document(document_id=document_id)
+
+
+class TestRestModePeriod(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_documents(self, mock_get):
+        mock_data = [
+            {
+                "id": "rmp_1",
+                "day": "2024-03-10",
+                "start_time": "2024-03-10T10:00:00+00:00",
+                "end_time": "2024-03-10T18:00:00+00:00",
+                "rest_mode_state": "on_demand_rest",
+                "baseline_heart_rate": 60,
+            },
+            {
+                "id": "rmp_2",
+                "day": "2024-03-11",
+                "start_time": "2024-03-11T09:00:00+00:00",
+                "rest_mode_state": "recovering_from_illness",
+                "baseline_hrv": 50,
+            },
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "next_rmp_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+        start_date = date.fromisoformat(start_date_str)
+        end_date = date.fromisoformat(end_date_str)
+
+        rest_mode_response = self.client.rest_mode_period.get_rest_mode_period_documents(
+            start_date=start_date, end_date=end_date, next_token="test_rmp_token"
+        )
+
+        self.assertIsInstance(rest_mode_response, RestModePeriodResponse)
+        self.assertEqual(len(rest_mode_response.data), 2)
+        self.assertIsInstance(rest_mode_response.data[0], RestModePeriodModel)
+        self.assertEqual(rest_mode_response.next_token, "next_rmp_token")
+        self.assertEqual(rest_mode_response.data[0].rest_mode_state, "on_demand_rest")
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period",
+            headers=self.client.headers,
+            params={
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "next_token": "test_rmp_token",
+            },
+        )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_documents_with_string_dates(self, mock_get):
+        mock_data = [
+            {
+                "id": "rmp_str_date",
+                "day": "2024-03-10",
+                "start_time": "2024-03-10T10:00:00+00:00",
+                "rest_mode_state": "on_demand_rest",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        start_date_str = "2024-03-10"
+        end_date_str = "2024-03-11"
+
+        self.client.rest_mode_period.get_rest_mode_period_documents(
+            start_date=start_date_str, end_date=end_date_str
+        )
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period",
+            headers=self.client.headers,
+            params={"start_date": start_date_str, "end_date": end_date_str},
+        )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_documents_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        with self.assertRaises(RequestException):
+            self.client.rest_mode_period.get_rest_mode_period_documents(
+                start_date="2024-03-10", end_date="2024-03-11"
+            )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_document(self, mock_get):
+        mock_response_json = {
+            "id": "test_rmp_single",
+            "day": "2024-03-10",
+            "start_time": "2024-03-10T10:00:00+00:00",
+            "end_time": "2024-03-10T18:00:00+00:00",
+            "rest_mode_state": "recovering_from_illness",
+            "baseline_heart_rate": 62,
+            "baseline_hrv": 48,
+            "baseline_skin_temperature": -0.2,
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        document_id = "test_rmp_single"
+        rmp_document = self.client.rest_mode_period.get_rest_mode_period_document(document_id=document_id)
+
+        self.assertIsInstance(rmp_document, RestModePeriodModel)
+        self.assertEqual(rmp_document.id, document_id)
+        self.assertEqual(rmp_document.rest_mode_state, "recovering_from_illness")
+        self.assertEqual(rmp_document.baseline_hrv, 48)
+        self.assertEqual(rmp_document.start_time, datetime.fromisoformat("2024-03-10T10:00:00+00:00"))
+
+        mock_get.assert_called_once_with(
+            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_rest_mode_period_document_error(self, mock_get):
+        mock_get.side_effect = RequestException("API error")
+        document_id = "test_rmp_single_error"
+        with self.assertRaises(RequestException):
+            self.client.rest_mode_period.get_rest_mode_period_document(document_id=document_id)
