@@ -18,6 +18,11 @@ from .daily_spo2 import DailySpo2
 from .sleep_time import SleepTime
 from .rest_mode_period import RestModePeriod
 from .ring_configuration import RingConfiguration
+from .daily_stress import DailyStress
+from .daily_resilience import DailyResilience
+from .daily_cardiovascular_age import DailyCardiovascularAge
+from .vo2_max import Vo2Max
+from .webhook import Webhook
 
 
 class OuraClient:
@@ -52,6 +57,11 @@ class OuraClient:
         self.sleep_time = SleepTime(self)
         self.rest_mode_period = RestModePeriod(self)
         self.ring_configuration = RingConfiguration(self)
+        self.daily_stress = DailyStress(self)
+        self.daily_resilience = DailyResilience(self)
+        self.daily_cardiovascular_age = DailyCardiovascularAge(self)
+        self.vo2_max = Vo2Max(self)
+        self.webhook = Webhook(self)
 
     def _make_request(
         self,
