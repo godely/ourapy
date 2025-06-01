@@ -1,4 +1,5 @@
 import json
+import logging
 
 def parse_openapi_spec(spec_content):
     """
@@ -15,8 +16,8 @@ def parse_openapi_spec(spec_content):
     try:
         spec = json.loads(spec_content)
     except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        return None, None
+        logging.error(f"Error decoding JSON: {e}")
+        raise ValueError(f"Failed to parse OpenAPI spec: {e}")
 
     paths_data = {}
     if "paths" in spec and isinstance(spec["paths"], dict):
