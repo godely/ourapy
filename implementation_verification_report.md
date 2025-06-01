@@ -16,7 +16,7 @@ This report summarizes the Oura API Python client's endpoint coverage against th
 | 6. Tag                        | Deviates from Spec      | Spec indicates deprecated; client implements deprecated endpoints.    |
 | 7. Workout                    | Fully Implemented       |                                                                       |
 | 8. Enhanced Tag               | Fully Implemented       |                                                                       |
-| 9. Daily SpO2                 | Fully Implemented       |                                                                       |
+| 9. Daily Spo2                 | Fully Implemented       |                                                                       |
 | 10. Sleep Time                | Partially Implemented   | Client implements list, spec implies single doc (client has a TODO).  |
 | 11. Rest Mode Period          | Fully Implemented       |                                                                       |
 | 12. Ring Configuration        | Deviates from Spec      | Client uses different query parameters than spec.                     |
