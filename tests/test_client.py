@@ -16,9 +16,14 @@ from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
 from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel
 from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model, DailySpO2AggregatedValuesModel
 from oura_api_client.models.sleep_time import SleepTimeResponse, SleepTimeModel, SleepTimeWindow, SleepTimeRecommendation, SleepTimeStatus
-from oura_api_client.models.rest_mode_period import RestModePeriodResponse, RestModePeriodModel  # Added RestModePeriod models
-
+from oura_api_client.models.rest_mode_period import RestModePeriodResponse, RestModePeriodModel # Added RestModePeriod models
+from oura_api_client.models.daily_stress import DailyStressResponse, DailyStressModel, DailyStressSummary # Added DailyStress models
+from oura_api_client.models.daily_resilience import DailyResilienceResponse, DailyResilienceModel, ResilienceContributors, LongTermResilienceLevel # Added DailyResilience models
+from oura_api_client.models.daily_cardiovascular_age import DailyCardiovascularAgeResponse, DailyCardiovascularAgeModel # Added DailyCardiovascularAge models
+from oura_api_client.models.vo2_max import Vo2MaxResponse, Vo2MaxModel # Added Vo2Max models
+import requests
 from requests.exceptions import RequestException
+import httpretty # Import httpretty for more robust mocking if needed, or stick to unittest.mock
 
 
 class TestOuraClient(unittest.TestCase):
@@ -44,7 +49,11 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.enhanced_tag)
         self.assertIsNotNone(self.client.daily_spo2)
         self.assertIsNotNone(self.client.sleep_time)
-        self.assertIsNotNone(self.client.rest_mode_period)  # Added rest_mode_period
+        self.assertIsNotNone(self.client.rest_mode_period) # Added rest_mode_period
+        self.assertIsNotNone(self.client.daily_stress) # Added daily_stress
+        self.assertIsNotNone(self.client.daily_resilience) # Added daily_resilience
+        self.assertIsNotNone(self.client.daily_cardiovascular_age) # Added daily_cardiovascular_age
+        self.assertIsNotNone(self.client.vo2_max) # Added vo2_max
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
@@ -1619,3 +1628,710 @@ class TestRestModePeriod(unittest.TestCase):
         document_id = "test_rmp_single_error"
         with self.assertRaises(RequestException):
             self.client.rest_mode_period.get_rest_mode_period_document(document_id=document_id)
+
+
+class TestDailyStress(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+        self.base_url = self.client.BASE_URL
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_no_params(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_stress.get_daily_stress_documents()
+        self.assertIsInstance(response, DailyStressResponse)
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_stress",
+            headers=self.client.headers,
+            params={},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_start_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_stress.get_daily_stress_documents(start_date="2024-01-01")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_stress",
+            headers=self.client.headers,
+            params={"start_date": "2024-01-01"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_stress.get_daily_stress_documents(end_date="2024-01-31")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_stress",
+            headers=self.client.headers,
+            params={"end_date": "2024-01-31"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_start_and_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_stress.get_daily_stress_documents(start_date="2024-01-01", end_date="2024-01-31")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_stress",
+            headers=self.client.headers,
+            params={"start_date": "2024-01-01", "end_date": "2024-01-31"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_next_token(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_stress.get_daily_stress_documents(next_token="some_token")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_stress",
+            headers=self.client.headers,
+            params={"next_token": "some_token"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_success(self, mock_get):
+        mock_data = [
+            {
+                "id": "stress_doc_1",
+                "day": "2024-03-15",
+                "stress_high": 1200,
+                "recovery_high": 3600,
+                "day_summary": "restored",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "stress_next_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_stress.get_daily_stress_documents(start_date="2024-03-15")
+        self.assertIsInstance(response, DailyStressResponse)
+        self.assertEqual(len(response.data), 1)
+        self.assertIsInstance(response.data[0], DailyStressModel)
+        self.assertEqual(response.data[0].id, "stress_doc_1")
+        self.assertEqual(response.data[0].stress_high, 1200)
+        self.assertEqual(response.data[0].day_summary, DailyStressSummary.RESTORED) # Assuming DailyStressSummary is an Enum
+        self.assertEqual(response.next_token, "stress_next_token")
+        mock_get.assert_called_with(
+            f"{self.base_url}/v2/usercollection/daily_stress",
+            headers=self.client.headers,
+            params={"start_date": "2024-03-15"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_api_error_400(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_stress.get_daily_stress_documents()
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_api_error_401(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("401 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_stress.get_daily_stress_documents()
+
+    @patch("requests.get")
+    def test_get_daily_stress_documents_api_error_429(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("429 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_stress.get_daily_stress_documents()
+
+    @patch("requests.get")
+    def test_get_daily_stress_document_success(self, mock_get):
+        document_id = "sample_stress_id"
+        mock_response_json = {
+            "id": document_id,
+            "day": "2024-03-16",
+            "stress_high": 1500,
+            "recovery_high": 3000,
+            "day_summary": "stressful",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_stress.get_daily_stress_document(document_id)
+        self.assertIsInstance(response, DailyStressModel)
+        self.assertEqual(response.id, document_id)
+        self.assertEqual(response.day, date(2024, 3, 16))
+        self.assertEqual(response.stress_high, 1500)
+        self.assertEqual(response.day_summary, DailyStressSummary.STRESSFUL) # Assuming DailyStressSummary is an Enum
+
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_stress/{document_id}",
+            headers=self.client.headers,
+            params=None, # No params for single document GET
+        )
+
+    @patch("requests.get")
+    def test_get_daily_stress_document_not_found_404(self, mock_get):
+        document_id = "non_existent_id"
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("404 Client Error: Not Found")
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_stress.get_daily_stress_document(document_id)
+
+
+class TestDailyResilience(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+        self.base_url = self.client.BASE_URL
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_no_params(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_resilience.get_daily_resilience_documents()
+        self.assertIsInstance(response, DailyResilienceResponse)
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_resilience",
+            headers=self.client.headers,
+            params={},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_start_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_resilience.get_daily_resilience_documents(start_date="2024-02-01")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_resilience",
+            headers=self.client.headers,
+            params={"start_date": "2024-02-01"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_resilience.get_daily_resilience_documents(end_date="2024-02-28")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_resilience",
+            headers=self.client.headers,
+            params={"end_date": "2024-02-28"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_start_and_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_resilience.get_daily_resilience_documents(start_date="2024-02-01", end_date="2024-02-28")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_resilience",
+            headers=self.client.headers,
+            params={"start_date": "2024-02-01", "end_date": "2024-02-28"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_next_token(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_resilience.get_daily_resilience_documents(next_token="res_token")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_resilience",
+            headers=self.client.headers,
+            params={"next_token": "res_token"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_success(self, mock_get):
+        mock_contributors_data = {
+            "sleep_recovery": 75.0,
+            "daytime_recovery": 60.0,
+            "stress": 80.0,
+        }
+        mock_data = [
+            {
+                "id": "res_doc_1",
+                "day": "2024-03-18",
+                "contributors": mock_contributors_data,
+                "level": "solid",
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "res_next_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_resilience.get_daily_resilience_documents(start_date="2024-03-18")
+        self.assertIsInstance(response, DailyResilienceResponse)
+        self.assertEqual(len(response.data), 1)
+        model_item = response.data[0]
+        self.assertIsInstance(model_item, DailyResilienceModel)
+        self.assertEqual(model_item.id, "res_doc_1")
+        self.assertIsInstance(model_item.contributors, ResilienceContributors)
+        self.assertEqual(model_item.contributors.sleep_recovery, 75.0)
+        self.assertEqual(model_item.level, LongTermResilienceLevel.SOLID)
+        self.assertEqual(response.next_token, "res_next_token")
+        mock_get.assert_called_with(
+            f"{self.base_url}/v2/usercollection/daily_resilience",
+            headers=self.client.headers,
+            params={"start_date": "2024-03-18"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_api_error_400(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_resilience.get_daily_resilience_documents()
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_api_error_401(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("401 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_resilience.get_daily_resilience_documents()
+
+    @patch("requests.get")
+    def test_get_daily_resilience_documents_api_error_429(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("429 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_resilience.get_daily_resilience_documents()
+
+    @patch("requests.get")
+    def test_get_daily_resilience_document_success(self, mock_get):
+        document_id = "sample_res_id"
+        mock_contributors_data = {
+            "sleep_recovery": 80.5,
+            "daytime_recovery": 65.2,
+            "stress": 70.1,
+        }
+        mock_response_json = {
+            "id": document_id,
+            "day": "2024-03-19",
+            "contributors": mock_contributors_data,
+            "level": "exceptional",
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_resilience.get_daily_resilience_document(document_id)
+        self.assertIsInstance(response, DailyResilienceModel)
+        self.assertEqual(response.id, document_id)
+        self.assertEqual(response.day, date(2024, 3, 19))
+        self.assertIsInstance(response.contributors, ResilienceContributors)
+        self.assertEqual(response.contributors.daytime_recovery, 65.2)
+        self.assertEqual(response.level, LongTermResilienceLevel.EXCEPTIONAL)
+
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_resilience/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_daily_resilience_document_not_found_404(self, mock_get):
+        document_id = "non_existent_res_id"
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("404 Client Error: Not Found")
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_resilience.get_daily_resilience_document(document_id)
+
+
+class TestDailyCardiovascularAge(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+        self.base_url = self.client.BASE_URL
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_no_params(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
+        self.assertIsInstance(response, DailyCardiovascularAgeResponse)
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            headers=self.client.headers,
+            params={},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_start_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents(start_date="2024-03-01")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            headers=self.client.headers,
+            params={"start_date": "2024-03-01"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents(end_date="2024-03-31")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            headers=self.client.headers,
+            params={"end_date": "2024-03-31"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_start_and_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents(start_date="2024-03-01", end_date="2024-03-31")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            headers=self.client.headers,
+            params={"start_date": "2024-03-01", "end_date": "2024-03-31"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_next_token(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents(next_token="cva_token")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            headers=self.client.headers,
+            params={"next_token": "cva_token"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_success(self, mock_get):
+        mock_data = [
+            {
+                # The API might return an 'id' but DailyCardiovascularAgeModel doesn't have it.
+                # This is fine, Pydantic will ignore extra fields.
+                "id": "cva_doc_api_id_1",
+                "day": "2024-03-20",
+                "vascular_age": 30.5, # Changed to float to match spec
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "cva_next_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents(start_date="2024-03-20")
+        self.assertIsInstance(response, DailyCardiovascularAgeResponse)
+        self.assertEqual(len(response.data), 1)
+        model_item = response.data[0]
+        self.assertIsInstance(model_item, DailyCardiovascularAgeModel)
+        self.assertEqual(model_item.day, date(2024, 3, 20))
+        self.assertEqual(model_item.vascular_age, 30.5)
+        self.assertEqual(response.next_token, "cva_next_token")
+        mock_get.assert_called_with(
+            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            headers=self.client.headers,
+            params={"start_date": "2024-03-20"},
+        )
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_api_error_400(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_api_error_401(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("401 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_documents_api_error_429(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("429 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_document_success(self, mock_get):
+        document_id = "sample_cva_id"
+        mock_response_json = {
+            "id": document_id,
+            "day": "2024-03-21",
+            "vascular_age": 32.0, # Changed to float
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_document(document_id)
+        self.assertIsInstance(response, DailyCardiovascularAgeModel)
+        self.assertEqual(response.day, date(2024, 3, 21))
+        self.assertEqual(response.vascular_age, 32.0)
+
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_daily_cardiovascular_age_document_not_found_404(self, mock_get):
+        document_id = "non_existent_cva_id"
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("404 Client Error: Not Found")
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_document(document_id)
+
+
+class TestVo2Max(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+        self.base_url = self.client.BASE_URL
+        self.correct_path_segment = "/v2/usercollection/vO2_max" # Note the casing
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_no_params(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.vo2_max.get_vo2_max_documents()
+        self.assertIsInstance(response, Vo2MaxResponse)
+        mock_get.assert_called_once_with(
+            f"{self.base_url}{self.correct_path_segment}",
+            headers=self.client.headers,
+            params={},
+        )
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_start_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.vo2_max.get_vo2_max_documents(start_date="2024-04-01")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}{self.correct_path_segment}",
+            headers=self.client.headers,
+            params={"start_date": "2024-04-01"},
+        )
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.vo2_max.get_vo2_max_documents(end_date="2024-04-30")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}{self.correct_path_segment}",
+            headers=self.client.headers,
+            params={"end_date": "2024-04-30"},
+        )
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_start_and_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.vo2_max.get_vo2_max_documents(start_date="2024-04-01", end_date="2024-04-30")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}{self.correct_path_segment}",
+            headers=self.client.headers,
+            params={"start_date": "2024-04-01", "end_date": "2024-04-30"},
+        )
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_next_token(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.vo2_max.get_vo2_max_documents(next_token="vo2_token")
+        mock_get.assert_called_once_with(
+            f"{self.base_url}{self.correct_path_segment}",
+            headers=self.client.headers,
+            params={"next_token": "vo2_token"},
+        )
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_success(self, mock_get):
+        mock_data = [
+            {
+                "id": "vo2_doc_1",
+                "day": "2024-04-10",
+                "timestamp": "2024-04-10T10:00:00+00:00",
+                "vo2_max": 35.5,
+            }
+        ]
+        mock_response_json = {"data": mock_data, "next_token": "vo2_next_token"}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.vo2_max.get_vo2_max_documents(start_date="2024-04-10")
+        self.assertIsInstance(response, Vo2MaxResponse)
+        self.assertEqual(len(response.data), 1)
+        model_item = response.data[0]
+        self.assertIsInstance(model_item, Vo2MaxModel)
+        self.assertEqual(model_item.id, "vo2_doc_1")
+        self.assertEqual(model_item.day, date(2024, 4, 10))
+        self.assertEqual(model_item.vo2_max, 35.5)
+        self.assertEqual(response.next_token, "vo2_next_token")
+        mock_get.assert_called_with(
+            f"{self.base_url}{self.correct_path_segment}",
+            headers=self.client.headers,
+            params={"start_date": "2024-04-10"},
+        )
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_api_error_400(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.vo2_max.get_vo2_max_documents()
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_api_error_401(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("401 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.vo2_max.get_vo2_max_documents()
+
+    @patch("requests.get")
+    def test_get_vo2_max_documents_api_error_429(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("429 Client Error")
+        mock_get.return_value = mock_response
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.vo2_max.get_vo2_max_documents()
+
+    @patch("requests.get")
+    def test_get_vo2_max_document_success(self, mock_get):
+        document_id = "sample_vo2_id"
+        mock_response_json = {
+            "id": document_id,
+            "day": "2024-04-11",
+            "timestamp": "2024-04-11T11:00:00+00:00",
+            "vo2_max": 36.2,
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.vo2_max.get_vo2_max_document(document_id)
+        self.assertIsInstance(response, Vo2MaxModel)
+        self.assertEqual(response.id, document_id)
+        self.assertEqual(response.day, date(2024, 4, 11))
+        self.assertEqual(response.timestamp, datetime.fromisoformat("2024-04-11T11:00:00+00:00"))
+        self.assertEqual(response.vo2_max, 36.2)
+
+        mock_get.assert_called_once_with(
+            f"{self.base_url}{self.correct_path_segment}/{document_id}",
+            headers=self.client.headers,
+            params=None,
+        )
+
+    @patch("requests.get")
+    def test_get_vo2_max_document_not_found_404(self, mock_get):
+        document_id = "non_existent_vo2_id"
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("404 Client Error: Not Found")
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.client.vo2_max.get_vo2_max_document(document_id)

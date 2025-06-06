@@ -1,7 +1,6 @@
 import json
 import logging
 
-
 def parse_openapi_spec(spec_content):
     """
     Parses the OpenAPI specification and extracts relevant information.
