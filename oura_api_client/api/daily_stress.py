@@ -1,7 +1,11 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.daily_stress import DailyStressResponse, DailyStressModel
+from oura_api_client.models.daily_stress import (
+    DailyStressResponse,
+    DailyStressModel
+)
+
 
 class DailyStress(BaseRouter):
     def get_daily_stress_documents(
@@ -31,7 +35,9 @@ class DailyStress(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/daily_stress", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/daily_stress", params=params
+        )
         return DailyStressResponse(**response)
 
     def get_daily_stress_document(self, document_id: str) -> DailyStressModel:
@@ -44,5 +50,7 @@ class DailyStress(BaseRouter):
         Returns:
             DailyStressModel: Response containing daily stress data.
         """
-        response = self.client._make_request(f"/v2/usercollection/daily_stress/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/daily_stress/{document_id}"
+        )
         return DailyStressModel(**response)

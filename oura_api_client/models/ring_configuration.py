@@ -1,8 +1,9 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import date # Added date for consistency if a 'day' field were needed, though not typical for config
+from datetime import datetime
 # Enum-like fields will be handled with Literal
 from typing import Literal
+
 
 class RingConfigurationModel(BaseModel):
     id: str
@@ -10,34 +11,51 @@ class RingConfigurationModel(BaseModel):
     # Using Literal for fields that are described as enums
     color: Optional[Literal[
         "black",
-        "brushed_titanium", # New
+        "brushed_titanium",  # New
         "gold",
-        "graphite", # New
+        "graphite",  # New
         "rose_gold",
         "silver",
-        "stealth_black" # Typo in spec? "stealth" is common, "stealth_black" is more specific
+        "stealth_black"  # Typo in spec? "stealth" is common, "stealth_black" is more specific
     ]] = Field(None, alias="color")
     design: Optional[Literal[
-        "balance", # New
-        "gucci", # New
+        "balance",  # New
+        "gucci",  # New
         "heritage",
         "horizon"
-    ]] = Field(None, alias="design")
+    ]] = Field(
+
+        None, alias="design"
+
+    )
     firmware_version: Optional[str] = Field(None, alias="firmware_version")
     hardware_type: Optional[Literal[
         "gen1",
         "gen2",
         "gen2m",
         "gen3"
-    ]] = Field(None, alias="hardware_type")
+    ]] = Field(
+
+        None, alias="hardware_type"
+
+    )
     # 'id' is already included
-    set_up_at: Optional[datetime] = Field(None, alias="set_up_at") # Changed from setup_at for Pythonic convention
-    size: Optional[int] = Field(None, alias="size")
+    set_up_at: Optional[datetime] = Field(
+
+        None, alias="set_up_at"
+
+    )  # Changed from setup_at for Pythonic convention
+    size: Optional[int] = Field(
+
+        None, alias="size"
+
+    )
 
     # RingColor, RingDesign, RingHardwareType are effectively defined by Literals above
     # No separate models needed for them if they are just choices for a field.
     # If they had more complex structures (e.g., RingColor having RGB values),
     # then separate models would be appropriate. The task implies they are simple enums.
+
 
 class RingConfigurationResponse(BaseModel):
     data: List[RingConfigurationModel]

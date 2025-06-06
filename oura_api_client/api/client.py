@@ -1,8 +1,7 @@
 """Oura API client implementation."""
 
 import requests
-from typing import Optional, Dict, Any, List
-from datetime import date, datetime
+from typing import Optional, Dict, Any
 
 from .heartrate import HeartRateEndpoints
 from .personal import PersonalEndpoints

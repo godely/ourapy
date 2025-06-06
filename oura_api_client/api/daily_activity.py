@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_activity import DailyActivityResponse, DailyActivityModel
 
+
 class DailyActivity(BaseRouter):
     def get_daily_activity_documents(
         self,
@@ -31,10 +32,14 @@ class DailyActivity(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/daily_activity", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/daily_activity", params=params
+        )
         return DailyActivityResponse(**response)
 
-    def get_daily_activity_document(self, document_id: str) -> DailyActivityModel:
+    def get_daily_activity_document(
+        self, document_id: str
+    ) -> DailyActivityModel:
         """
         Get a single daily activity document.
 
@@ -44,5 +49,7 @@ class DailyActivity(BaseRouter):
         Returns:
             DailyActivityModel: Response containing daily activity data.
         """
-        response = self.client._make_request(f"/v2/usercollection/daily_activity/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/daily_activity/{document_id}"
+        )
         return DailyActivityModel(**response)

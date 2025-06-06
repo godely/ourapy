@@ -1,5 +1,5 @@
 import requests
-from datetime import date, datetime
+from datetime import datetime
 from typing import Optional, Dict, Any
 
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     client = OuraClient(ACCESS_TOKEN)
 
     # Get heart rate data for the last week
-    from datetime import datetime, timedelta
+    from datetime import timedelta
 
     end_date = datetime.now().strftime("%Y-%m-%d")
     start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")

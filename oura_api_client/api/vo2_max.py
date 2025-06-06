@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.vo2_max import Vo2MaxResponse, Vo2MaxModel
 
+
 class Vo2Max(BaseRouter):
     def get_vo2_max_documents(
         self,
@@ -31,7 +32,9 @@ class Vo2Max(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/vO2_max", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/vO2_max", params=params
+        )
         return Vo2MaxResponse(**response)
 
     def get_vo2_max_document(self, document_id: str) -> Vo2MaxModel:
@@ -44,5 +47,7 @@ class Vo2Max(BaseRouter):
         Returns:
             Vo2MaxModel: Response containing VO2 max data.
         """
-        response = self.client._make_request(f"/v2/usercollection/vO2_max/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/vO2_max/{document_id}"
+        )
         return Vo2MaxModel(**response)

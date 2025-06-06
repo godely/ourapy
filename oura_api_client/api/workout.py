@@ -1,7 +1,8 @@
 from typing import Optional, Union
-from datetime import date # Using date for start_date and end_date
+from datetime import date  # Using date for start_date and end_date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
+
 
 class Workout(BaseRouter):
     def get_workout_documents(
@@ -31,7 +32,9 @@ class Workout(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/workout", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/workout", params=params
+        )
         return WorkoutResponse(**response)
 
     def get_workout_document(self, document_id: str) -> WorkoutModel:
@@ -44,5 +47,7 @@ class Workout(BaseRouter):
         Returns:
             WorkoutModel: Response containing workout data.
         """
-        response = self.client._make_request(f"/v2/usercollection/workout/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/workout/{document_id}"
+        )
         return WorkoutModel(**response)

@@ -1,7 +1,8 @@
 from typing import Optional, Union
-from datetime import date # Using date for start_date and end_date
+from datetime import date  # Using date for start_date and end_date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.tag import TagResponse, TagModel
+
 
 class Tag(BaseRouter):
     def get_tag_documents(
@@ -31,7 +32,9 @@ class Tag(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/tag", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/tag", params=params
+        )
         return TagResponse(**response)
 
     def get_tag_document(self, document_id: str) -> TagModel:
@@ -44,5 +47,7 @@ class Tag(BaseRouter):
         Returns:
             TagModel: Response containing tag data.
         """
-        response = self.client._make_request(f"/v2/usercollection/tag/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/tag/{document_id}"
+        )
         return TagModel(**response)

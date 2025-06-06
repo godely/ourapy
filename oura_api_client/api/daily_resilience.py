@@ -1,7 +1,11 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.daily_resilience import DailyResilienceResponse, DailyResilienceModel
+from oura_api_client.models.daily_resilience import (
+    DailyResilienceResponse,
+    DailyResilienceModel
+)
+
 
 class DailyResilience(BaseRouter):
     def get_daily_resilience_documents(
@@ -31,10 +35,14 @@ class DailyResilience(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/daily_resilience", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/daily_resilience", params=params
+        )
         return DailyResilienceResponse(**response)
 
-    def get_daily_resilience_document(self, document_id: str) -> DailyResilienceModel:
+    def get_daily_resilience_document(
+        self, document_id: str
+    ) -> DailyResilienceModel:
         """
         Get a single daily resilience document.
 
@@ -44,5 +52,7 @@ class DailyResilience(BaseRouter):
         Returns:
             DailyResilienceModel: Response containing daily resilience data.
         """
-        response = self.client._make_request(f"/v2/usercollection/daily_resilience/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/daily_resilience/{document_id}"
+        )
         return DailyResilienceModel(**response)

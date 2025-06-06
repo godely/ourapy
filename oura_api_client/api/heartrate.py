@@ -1,7 +1,6 @@
 """Heart rate endpoint implementations."""
 
 from typing import Optional, Dict, Any, Union
-from datetime import date, datetime
 
 from ..models.heartrate import HeartRateResponse
 
@@ -39,7 +38,9 @@ class HeartRateEndpoints:
         if end_date:
             params["end_date"] = end_date
 
-        response = self.client._make_request("/usercollection/heartrate", params=params)
+        response = self.client._make_request(
+            "/usercollection/heartrate", params=params
+        )
 
         if return_model:
             return HeartRateResponse.from_dict(response)

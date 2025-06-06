@@ -1,7 +1,11 @@
-from typing import Optional, Union # Union is not strictly needed here but kept for consistency
-from datetime import date # date is not used by ring_configuration but kept for consistency
+from typing import Optional, Union  # Union is not strictly needed here but kept for consistency
+from datetime import date  # date is not used by ring_configuration but kept for consistency
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.ring_configuration import RingConfigurationResponse, RingConfigurationModel
+from oura_api_client.models.ring_configuration import (
+    RingConfigurationResponse,
+    RingConfigurationModel
+)
+
 
 class RingConfiguration(BaseRouter):
     def get_ring_configuration_documents(
@@ -9,7 +13,7 @@ class RingConfiguration(BaseRouter):
         # Ring Configuration usually doesn't have start/end_date or pagination in typical REST APIs
         # as it often returns a single current configuration or a list of all historical ones.
         # However, if the API supports it (e.g. for historical configurations):
-        start_date: Optional[Union[str, date]] = None, # Kept for potential future use or specific API design
+        start_date: Optional[Union[str, date]] = None,  # Kept for potential future use or specific API design
         end_date: Optional[Union[str, date]] = None,   # Kept for potential future use
         next_token: Optional[str] = None,
     ) -> RingConfigurationResponse:
@@ -44,10 +48,15 @@ class RingConfiguration(BaseRouter):
         # Remove None params manually as empty dict evaluates to False
         final_params = {k: v for k, v in params.items() if v is not None}
 
-        response = self.client._make_request("/v2/usercollection/ring_configuration", params=final_params if final_params else None)
+        response = self.client._make_request(
+            "/v2/usercollection/ring_configuration",
+            params=final_params if final_params else None
+        )
         return RingConfigurationResponse(**response)
 
-    def get_ring_configuration_document(self, document_id: str) -> RingConfigurationModel:
+    def get_ring_configuration_document(
+        self, document_id: str
+    ) -> RingConfigurationModel:
         """
         Get a single ring configuration document.
 
@@ -57,5 +66,7 @@ class RingConfiguration(BaseRouter):
         Returns:
             RingConfigurationModel: Response containing ring configuration data.
         """
-        response = self.client._make_request(f"/v2/usercollection/ring_configuration/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/ring_configuration/{document_id}"
+        )
         return RingConfigurationModel(**response)

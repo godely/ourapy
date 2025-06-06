@@ -6,6 +6,7 @@ from datetime import date
 
 
 @dataclass
+
 class PersonalInfo:
     """Represents personal information for a user."""
 
