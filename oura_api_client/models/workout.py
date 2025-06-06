@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import date, datetime
+from datetime import date, datetime  # Added date
 # WorkoutIntensity and WorkoutSource are enums, but Pydantic uses Literal for this
 from typing import Literal
 
@@ -29,11 +29,15 @@ class WorkoutModel(BaseModel):
         "strava",  # New based on common integrations
         "oura_app"  # New for workouts logged directly in Oura
     ]
-    start_datetime: datetime = Field(alias="start_datetime")
+    start_datetime: datetime = Field(
+        alias="start_datetime"
+    )
     # New fields from OpenAPI spec for Workout, if any, would be added here.
     # For now, using a common set of fields for workout tracking.
     # Example:
-    # route_coordinates: Optional[str] = Field(None, alias="route_coordinates")  # If GPS data was available
+    # route_coordinates: Optional[str] = Field(
+    #     None, alias="route_coordinates"
+    # )  # If GPS data was available
 
 
 class WorkoutResponse(BaseModel):

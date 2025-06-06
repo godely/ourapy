@@ -1,7 +1,10 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.daily_readiness import DailyReadinessResponse, DailyReadinessModel
+from oura_api_client.models.daily_readiness import (
+    DailyReadinessResponse,
+    DailyReadinessModel
+)
 
 
 class DailyReadiness(BaseRouter):
@@ -32,10 +35,14 @@ class DailyReadiness(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/daily_readiness", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/daily_readiness", params=params
+        )
         return DailyReadinessResponse(**response)
 
-    def get_daily_readiness_document(self, document_id: str) -> DailyReadinessModel:
+    def get_daily_readiness_document(
+        self, document_id: str
+    ) -> DailyReadinessModel:
         """
         Get a single daily readiness document.
 
@@ -45,5 +52,7 @@ class DailyReadiness(BaseRouter):
         Returns:
             DailyReadinessModel: Response containing daily readiness data.
         """
-        response = self.client._make_request(f"/v2/usercollection/daily_readiness/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/daily_readiness/{document_id}"
+        )
         return DailyReadinessModel(**response)

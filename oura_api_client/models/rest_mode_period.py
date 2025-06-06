@@ -40,17 +40,34 @@ class RestModeEpisode(BaseModel):
 class RestModePeriodModel(BaseModel):
     id: str
     day: date
-    start_time: datetime  # Timestamp of the summary
-    end_time: Optional[datetime] = Field(None, alias="end_time")
+    start_time: datetime = Field(
+        alias="start_time"
+    )
+    end_time: Optional[datetime] = Field(
+        None, alias="end_time"
+    )
     # Rest mode specific state or tag, e.g. "on_demand_rest", "recovering_from_illness"
-    rest_mode_state: Optional[str] = Field(None, alias="rest_mode_state")  # Example: "on_demand_rest"
+    rest_mode_state: Optional[str] = Field(
+        None, alias="rest_mode_state"
+    )  # Example: "on_demand_rest"
     # If RestModeEpisode was a list of sub-items:
-    # episodes: Optional[List[RestModeEpisode]] = Field(None, alias="episodes")
+    # episodes: Optional[List[RestModeEpisode]] = Field(
+    #     None, alias="episodes"
+    # )
     # However, the OpenAPI spec has a flat structure for RestModePeriodModel.
     # Adding fields from OpenAPI spec for RestModePeriod
-    baseline_heart_rate: Optional[int] = Field(None, alias="baseline_heart_rate")
+    baseline_heart_rate: Optional[int] = Field(
+        None, alias="baseline_heart_rate"
+    )
     baseline_hrv: Optional[int] = Field(None, alias="baseline_hrv")
-    baseline_skin_temperature: Optional[float] = Field(None, alias="baseline_skin_temperature")
+    baseline_skin_temperature: Optional[float] = Field(
+        None, alias="baseline_skin_temperature"
+    )
+    # 'day' is already included
+    # 'end_time' is already included
+    # 'id' is already included
+    # 'rest_mode_state' is already included (as 'state' in some contexts, but using rest_mode_state for clarity)
+    # 'start_time' is already included
 
 
 class RestModePeriodResponse(BaseModel):

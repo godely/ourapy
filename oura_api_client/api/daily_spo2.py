@@ -1,7 +1,10 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model
+from oura_api_client.models.daily_spo2 import (
+    DailySpO2Response,
+    DailySpO2Model
+)
 
 
 class DailySpo2(BaseRouter):  # Renamed class to DailySpo2
@@ -32,10 +35,14 @@ class DailySpo2(BaseRouter):  # Renamed class to DailySpo2
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/daily_spo2", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/daily_spo2", params=params
+        )
         return DailySpO2Response(**response)
 
-    def get_daily_spo2_document(self, document_id: str) -> DailySpO2Model:  # Renamed method and updated return type
+    def get_daily_spo2_document(
+        self, document_id: str
+    ) -> DailySpO2Model:  # Renamed method and updated return type
         """
         Get a single daily SpO2 document.
 
@@ -45,5 +52,7 @@ class DailySpo2(BaseRouter):  # Renamed class to DailySpo2
         Returns:
             DailySpO2Model: Response containing daily SpO2 data.
         """
-        response = self.client._make_request(f"/v2/usercollection/daily_spo2/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/daily_spo2/{document_id}"
+        )
         return DailySpO2Model(**response)

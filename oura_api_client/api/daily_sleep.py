@@ -1,7 +1,10 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.daily_sleep import DailySleepResponse, DailySleepModel
+from oura_api_client.models.daily_sleep import (
+    DailySleepResponse,
+    DailySleepModel
+)
 
 
 class DailySleep(BaseRouter):
@@ -32,7 +35,9 @@ class DailySleep(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/daily_sleep", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/daily_sleep", params=params
+        )
         return DailySleepResponse(**response)
 
     def get_daily_sleep_document(self, document_id: str) -> DailySleepModel:
@@ -45,5 +50,7 @@ class DailySleep(BaseRouter):
         Returns:
             DailySleepModel: Response containing daily sleep data.
         """
-        response = self.client._make_request(f"/v2/usercollection/daily_sleep/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/daily_sleep/{document_id}"
+        )
         return DailySleepModel(**response)
