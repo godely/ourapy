@@ -33,7 +33,9 @@ class Sleep(BaseRouter):  # Renamed class to Sleep
         }
         params = {k: v for k, v in params.items() if v is not None}
         # Corrected endpoint URL from daily_sleep to sleep
-        response = self.client._make_request("/v2/usercollection/sleep", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/sleep", params=params
+        )
         return SleepResponse(**response)
 
     def get_sleep_document(self, document_id: str) -> SleepModel:  # Renamed method and updated return type
@@ -47,5 +49,7 @@ class Sleep(BaseRouter):  # Renamed class to Sleep
             SleepModel: Response containing sleep data.
         """
         # Corrected endpoint URL from daily_sleep to sleep
-        response = self.client._make_request(f"/v2/usercollection/sleep/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/sleep/{document_id}"
+        )
         return SleepModel(**response)

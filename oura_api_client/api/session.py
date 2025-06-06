@@ -32,7 +32,9 @@ class Session(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/session", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/session", params=params
+        )
         return SessionResponse(**response)
 
     def get_session_document(self, document_id: str) -> SessionModel:
@@ -45,5 +47,7 @@ class Session(BaseRouter):
         Returns:
             SessionModel: Response containing session data.
         """
-        response = self.client._make_request(f"/v2/usercollection/session/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/session/{document_id}"
+        )
         return SessionModel(**response)

@@ -45,12 +45,17 @@ class RestModePeriodModel(BaseModel):
     # Rest mode specific state or tag, e.g. "on_demand_rest", "recovering_from_illness"
     rest_mode_state: Optional[str] = Field(None, alias="rest_mode_state")  # Example: "on_demand_rest"
     # If RestModeEpisode was a list of sub-items:
-    # episodes: Optional[List[RestModeEpisode]] = Field(None, alias="episodes")
+    # episodes: Optional[List[RestModeEpisode]] = Field(
+    #     None, alias="episodes"
+    # )
     # However, the OpenAPI spec has a flat structure for RestModePeriodModel.
     # Adding fields from OpenAPI spec for RestModePeriod
-    baseline_heart_rate: Optional[int] = Field(None, alias="baseline_heart_rate")
+    baseline_heart_rate: Optional[int] = Field(
+        None, alias="baseline_heart_rate"
+    )
     baseline_hrv: Optional[int] = Field(None, alias="baseline_hrv")
     baseline_skin_temperature: Optional[float] = Field(None, alias="baseline_skin_temperature")
+
 
 
 class RestModePeriodResponse(BaseModel):

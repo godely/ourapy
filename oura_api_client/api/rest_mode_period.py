@@ -1,7 +1,11 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.rest_mode_period import RestModePeriodResponse, RestModePeriodModel
+from oura_api_client.models.rest_mode_period import (
+    RestModePeriodResponse,
+    RestModePeriodModel
+)
+
 
 
 class RestModePeriod(BaseRouter):
@@ -32,10 +36,14 @@ class RestModePeriod(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/rest_mode_period", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/rest_mode_period", params=params
+        )
         return RestModePeriodResponse(**response)
 
-    def get_rest_mode_period_document(self, document_id: str) -> RestModePeriodModel:
+    def get_rest_mode_period_document(
+        self, document_id: str
+    ) -> RestModePeriodModel:
         """
         Get a single rest_mode_period document.
 
@@ -45,5 +53,7 @@ class RestModePeriod(BaseRouter):
         Returns:
             RestModePeriodModel: Response containing rest_mode_period data.
         """
-        response = self.client._make_request(f"/v2/usercollection/rest_mode_period/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/rest_mode_period/{document_id}"
+        )
         return RestModePeriodModel(**response)

@@ -1,7 +1,11 @@
 from typing import Optional, Union
 from datetime import date  # Using date for start_date and end_date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.enhanced_tag import EnhancedTagResponse, EnhancedTagModel
+from oura_api_client.models.enhanced_tag import (
+    EnhancedTagResponse,
+    EnhancedTagModel
+)
+
 
 
 class EnhancedTag(BaseRouter):
@@ -32,7 +36,9 @@ class EnhancedTag(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/enhanced_tag", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/enhanced_tag", params=params
+        )
         return EnhancedTagResponse(**response)
 
     def get_enhanced_tag_document(self, document_id: str) -> EnhancedTagModel:
@@ -45,5 +51,7 @@ class EnhancedTag(BaseRouter):
         Returns:
             EnhancedTagModel: Response containing enhanced_tag data.
         """
-        response = self.client._make_request(f"/v2/usercollection/enhanced_tag/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/enhanced_tag/{document_id}"
+        )
         return EnhancedTagModel(**response)

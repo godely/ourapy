@@ -1,7 +1,11 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.daily_cardiovascular_age import DailyCardiovascularAgeResponse, DailyCardiovascularAgeModel
+from oura_api_client.models.daily_cardiovascular_age import (
+    DailyCardiovascularAgeResponse,
+    DailyCardiovascularAgeModel
+)
+
 
 
 class DailyCardiovascularAge(BaseRouter):
@@ -20,7 +24,8 @@ class DailyCardiovascularAge(BaseRouter):
             next_token: Token for pagination.
 
         Returns:
-            DailyCardiovascularAgeResponse: Response containing daily cardiovascular age data.
+            DailyCardiovascularAgeResponse: Response containing daily
+                cardiovascular age data.
         """
         if isinstance(start_date, date):
             start_date = start_date.isoformat()
@@ -32,10 +37,14 @@ class DailyCardiovascularAge(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/daily_cardiovascular_age", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/daily_cardiovascular_age", params=params
+        )
         return DailyCardiovascularAgeResponse(**response)
 
-    def get_daily_cardiovascular_age_document(self, document_id: str) -> DailyCardiovascularAgeModel:
+    def get_daily_cardiovascular_age_document(
+        self, document_id: str
+    ) -> DailyCardiovascularAgeModel:
         """
         Get a single daily cardiovascular age document.
 
@@ -43,7 +52,10 @@ class DailyCardiovascularAge(BaseRouter):
             document_id: ID of the document.
 
         Returns:
-            DailyCardiovascularAgeModel: Response containing daily cardiovascular age data.
+            DailyCardiovascularAgeModel: Response containing daily
+                cardiovascular age data.
         """
-        response = self.client._make_request(f"/v2/usercollection/daily_cardiovascular_age/{document_id}")
+        response = self.client._make_request(
+            f"/v2/usercollection/daily_cardiovascular_age/{document_id}"
+        )
         return DailyCardiovascularAgeModel(**response)

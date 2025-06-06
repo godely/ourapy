@@ -3,6 +3,7 @@ from typing import List, Optional, Literal
 from datetime import datetime
 
 
+
 class RingConfigurationModel(BaseModel):
     id: str
     # Fields based on OpenAPI spec for RingConfiguration
@@ -21,14 +22,22 @@ class RingConfigurationModel(BaseModel):
         "gucci",  # New
         "heritage",
         "horizon"
-    ]] = Field(None, alias="design")
+    ]] = Field(
+
+        None, alias="design"
+
+    )
     firmware_version: Optional[str] = Field(None, alias="firmware_version")
     hardware_type: Optional[Literal[
         "gen1",
         "gen2",
         "gen2m",
         "gen3"
-    ]] = Field(None, alias="hardware_type")
+    ]] = Field(
+
+        None, alias="hardware_type"
+
+    )
     # 'id' is already included
     set_up_at: Optional[datetime] = Field(None, alias="set_up_at")  # Changed from setup_at for Pythonic convention
     size: Optional[int] = Field(None, alias="size")

@@ -46,7 +46,11 @@ class SessionModel(BaseModel):
     energy: Optional[float] = Field(None, alias="energy")
     hrv_data: Optional[str] = Field(None, alias="hrv_data")  # Assuming string
     label: Optional[str] = Field(None, alias="label")
-    readiness_score_delta: Optional[int] = Field(None, alias="readiness_score_delta")
+    readiness_score_delta: Optional[int] = Field(
+
+        None, alias="readiness_score_delta"
+
+    )
     skin_temperature: Optional[float] = Field(None, alias="skin_temperature")
     sleep_score_delta: Optional[int] = Field(None, alias="sleep_score_delta")
     stress: Optional[float] = Field(None, alias="stress")

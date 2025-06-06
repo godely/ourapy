@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 @dataclass
+
 class HeartRateSample:
     """Represents a single heart rate data point."""
 
@@ -31,6 +32,7 @@ class HeartRateSample:
 
 
 @dataclass
+
 class HeartRateResponse:
     """Represents the full heart rate response."""
 

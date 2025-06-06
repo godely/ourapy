@@ -7,10 +7,14 @@ class ReadinessContributors(BaseModel):
     activity_balance: Optional[int] = Field(None, alias="activity_balance")
     body_temperature: Optional[int] = Field(None, alias="body_temperature")
     hrv_balance: Optional[int] = Field(None, alias="hrv_balance")
-    previous_day_activity: Optional[int] = Field(None, alias="previous_day_activity")
+    previous_day_activity: Optional[int] = Field(
+        None, alias="previous_day_activity"
+    )
     previous_night: Optional[int] = Field(None, alias="previous_night")
     recovery_index: Optional[int] = Field(None, alias="recovery_index")
-    resting_heart_rate: Optional[int] = Field(None, alias="resting_heart_rate")
+    resting_heart_rate: Optional[int] = Field(
+        None, alias="resting_heart_rate"
+    )
     sleep_balance: Optional[int] = Field(None, alias="sleep_balance")
 
 

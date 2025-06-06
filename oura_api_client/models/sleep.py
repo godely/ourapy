@@ -19,7 +19,11 @@ class SleepModel(BaseModel):
     heart_rate: Optional[str] = Field(None, alias="heart_rate")  # Assuming string for heart_rate, adjust if it's a more complex type
     hrv: Optional[str] = Field(None, alias="hrv")  # Assuming string for hrv, adjust if it's a more complex type
     latency: Optional[int] = Field(None, alias="latency")
-    light_sleep_duration: Optional[int] = Field(None, alias="light_sleep_duration")
+    light_sleep_duration: Optional[int] = Field(
+
+        None, alias="light_sleep_duration"
+
+    )
     low_battery_alert: Optional[bool] = Field(None, alias="low_battery_alert")
     lowest_heart_rate: Optional[int] = Field(None, alias="lowest_heart_rate")  # Changed type to int
     movement_30_sec: Optional[str] = Field(None, alias="movement_30_sec")
@@ -29,7 +33,11 @@ class SleepModel(BaseModel):
     rem_sleep_duration: Optional[int] = Field(None, alias="rem_sleep_duration")
     restless_periods: Optional[int] = Field(None, alias="restless_periods")  # Added from daily_sleep
     # score is usually part of daily summaries, but can be part of a detailed sleep document
-    score: Optional[int] = Field(None, alias="score")
+    score: Optional[int] = Field(
+
+        None, alias="score"
+
+    )
     sleep_phase_5_min: Optional[str] = Field(None, alias="sleep_phase_5_min")
     sleep_score_delta: Optional[int] = Field(None, alias="sleep_score_delta")  # New, similar to readiness_score_delta
     sleep_algorithm_version: Optional[str] = Field(None, alias="sleep_algorithm_version")  # New

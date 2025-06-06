@@ -1,7 +1,11 @@
 from typing import Optional, Union
 from datetime import date
 from oura_api_client.api.base import BaseRouter
-from oura_api_client.models.sleep_time import SleepTimeResponse, SleepTimeModel
+from oura_api_client.models.sleep_time import (
+    SleepTimeResponse,
+    SleepTimeModel
+)
+
 
 
 class SleepTime(BaseRouter):
@@ -32,7 +36,9 @@ class SleepTime(BaseRouter):
             "next_token": next_token if next_token else None,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = self.client._make_request("/v2/usercollection/sleep_time", params=params)
+        response = self.client._make_request(
+            "/v2/usercollection/sleep_time", params=params
+        )
         return SleepTimeResponse(**response)
 
     def get_sleep_time_document(self, document_id: str) -> SleepTimeModel:
@@ -49,7 +55,10 @@ class SleepTime(BaseRouter):
         Returns:
             SleepTimeModel: Response containing sleep time data.
         """
-        # This endpoint might not be available in Oura API v2 for sleep_time.
-        # Proceeding with the assumption it might exist or for future compatibility.
-        response = self.client._make_request(f"/v2/usercollection/sleep_time/{document_id}")
+        # This endpoint might not be available in Oura API v2 for
+        # sleep_time. Proceeding with the assumption it might exist or
+        # for future compatibility.
+        response = self.client._make_request(
+            f"/v2/usercollection/sleep_time/{document_id}"
+        )
         return SleepTimeModel(**response)

@@ -29,7 +29,9 @@ class WorkoutModel(BaseModel):
         "strava",  # New based on common integrations
         "oura_app"  # New for workouts logged directly in Oura
     ]
-    start_datetime: datetime = Field(alias="start_datetime")
+    start_datetime: datetime = Field(
+        alias="start_datetime"
+    )
     # New fields from OpenAPI spec for Workout, if any, would be added here.
     # For now, using a common set of fields for workout tracking.
     # Example:

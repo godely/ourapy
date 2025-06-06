@@ -14,25 +14,61 @@ class SleepContributors(BaseModel):
     total_sleep: Optional[int] = Field(None, alias="total_sleep")  # Total sleep in minutes
 
 
+
+
 class DailySleepModel(BaseModel):
     id: str
     contributors: SleepContributors
     day: date
     timestamp: datetime
-    score: Optional[int] = Field(None, alias="score")
+    score: Optional[int] = Field(
+
+
+
+
+    None, alias="score"
+
+
+
+
+)
     bedtime_end: Optional[datetime] = Field(None, alias="bedtime_end")
     bedtime_start: Optional[datetime] = Field(None, alias="bedtime_start")
     breath_average: Optional[float] = Field(None, alias="breath_average")
-    deep_sleep_duration: Optional[int] = Field(None, alias="deep_sleep_duration")
+    deep_sleep_duration: Optional[int] = Field(
+
+        None, alias="deep_sleep_duration"
+
+    )
     efficiency: Optional[int] = Field(None, alias="efficiency")
-    heart_rate_average: Optional[float] = Field(None, alias="heart_rate_average")
-    heart_rate_lowest: Optional[float] = Field(None, alias="heart_rate_lowest")
+    heart_rate_average: Optional[float] = Field(
+
+        None, alias="heart_rate_average"
+
+    )
+    heart_rate_lowest: Optional[float] = Field(
+
+        None, alias="heart_rate_lowest"
+
+    )
     hypnogram_5_min: Optional[str] = Field(None, alias="hypnogram_5_min")
     latency: Optional[int] = Field(None, alias="latency")
-    light_sleep_duration: Optional[int] = Field(None, alias="light_sleep_duration")
+    light_sleep_duration: Optional[int] = Field(
+
+        None, alias="light_sleep_duration"
+
+    )
     low_battery_alert: Optional[bool] = Field(None, alias="low_battery_alert")
-    readiness_score_delta: Optional[int] = Field(None, alias="readiness_score_delta")
-    rem_sleep_duration: Optional[int] = Field(None, alias="rem_sleep_duration")
+    readiness_score_delta: Optional[int] = Field(
+
+        None, alias="readiness_score_delta"
+
+    )
+    rem_sleep_duration: Optional[int] = Field(
+
+        None, alias="rem_sleep_duration"
+
+    )
     restless_periods: Optional[int] = Field(None, alias="restless_periods")
     sleep_phase_5_min: Optional[str] = Field(None, alias="sleep_phase_5_min")  # Deprecated
     time_in_bed: Optional[int] = Field(None, alias="time_in_bed")
