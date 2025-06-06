@@ -40,12 +40,6 @@ class RestModeEpisode(BaseModel):
 class RestModePeriodModel(BaseModel):
     id: str
     day: date
-<<<<<<< HEAD
-    start_time: datetime  # Timestamp of the summary
-    end_time: Optional[datetime] = Field(None, alias="end_time")
-    # Rest mode specific state or tag, e.g. "on_demand_rest", "recovering_from_illness"
-    rest_mode_state: Optional[str] = Field(None, alias="rest_mode_state")  # Example: "on_demand_rest"
-=======
     start_time: datetime = Field(
         alias="start_time"
     )
@@ -56,7 +50,6 @@ class RestModePeriodModel(BaseModel):
     rest_mode_state: Optional[str] = Field(
         None, alias="rest_mode_state"
     )  # Example: "on_demand_rest"
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
     # If RestModeEpisode was a list of sub-items:
     # episodes: Optional[List[RestModeEpisode]] = Field(
     #     None, alias="episodes"
@@ -67,11 +60,6 @@ class RestModePeriodModel(BaseModel):
         None, alias="baseline_heart_rate"
     )
     baseline_hrv: Optional[int] = Field(None, alias="baseline_hrv")
-<<<<<<< HEAD
-    baseline_skin_temperature: Optional[float] = Field(None, alias="baseline_skin_temperature")
-
-
-=======
     baseline_skin_temperature: Optional[float] = Field(
         None, alias="baseline_skin_temperature"
     )
@@ -80,7 +68,6 @@ class RestModePeriodModel(BaseModel):
     # 'id' is already included
     # 'rest_mode_state' is already included (as 'state' in some contexts, but using rest_mode_state for clarity)
     # 'start_time' is already included
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 
 class RestModePeriodResponse(BaseModel):

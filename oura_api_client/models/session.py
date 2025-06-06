@@ -1,10 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
-<<<<<<< HEAD
-from datetime import datetime, date
-=======
 from datetime import datetime, date  # Added date for day field
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 # MomentType and MomentMood are enums, but Pydantic uses Literal for this
 from typing import Literal
@@ -13,13 +9,9 @@ from typing import Literal
 class SessionModel(BaseModel):
     id: str
     day: date  # Added day based on common patterns in other models
-<<<<<<< HEAD
-    start_datetime: datetime = Field(alias="start_datetime")
-=======
     start_datetime: datetime = Field(
      alias="start_datetime"
  )
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
     end_datetime: datetime = Field(alias="end_datetime")
     type: Literal[
         "breathing_exercise",
@@ -47,11 +39,6 @@ class SessionModel(BaseModel):
         "tired",
         "undefined"
     ]] = None
-<<<<<<< HEAD
-    heart_rate: Optional[str] = Field(None, alias="heart_rate")  # Assuming string, adjust if complex
-    heart_rate_variability: Optional[str] = Field(None, alias="heart_rate_variability")  # Assuming string
-    motion_count: Optional[int] = Field(None, alias="motion_count")
-=======
     heart_rate: Optional[str] = Field(
      None, alias="heart_rate"
  )  # Assuming string, adjust if complex
@@ -65,7 +52,6 @@ class SessionModel(BaseModel):
         None, alias="motion_count"
 
     )
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
     # New fields from OpenAPI spec for Session
     breathing_rate: Optional[float] = Field(None, alias="breathing_rate")
     duration: Optional[int] = Field(None, alias="duration")

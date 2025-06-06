@@ -1,10 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
-<<<<<<< HEAD
-from datetime import date, datetime
-=======
 from datetime import date, datetime  # Added date
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 # WorkoutIntensity and WorkoutSource are enums, but Pydantic uses Literal for this
 from typing import Literal
 
@@ -39,13 +35,9 @@ class WorkoutModel(BaseModel):
     # New fields from OpenAPI spec for Workout, if any, would be added here.
     # For now, using a common set of fields for workout tracking.
     # Example:
-<<<<<<< HEAD
-    # route_coordinates: Optional[str] = Field(None, alias="route_coordinates")  # If GPS data was available
-=======
     # route_coordinates: Optional[str] = Field(
     #     None, alias="route_coordinates"
     # )  # If GPS data was available
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 
 class WorkoutResponse(BaseModel):

@@ -1,10 +1,6 @@
 from typing import Optional, Union
-<<<<<<< HEAD
-from datetime import date  # Using date for start_date and end_date as per other endpoints
-=======
 from datetime import date  # Using date for start_date and end_date
 # as per other endpoints
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.session import SessionResponse, SessionModel
 
@@ -12,15 +8,10 @@ from oura_api_client.models.session import SessionResponse, SessionModel
 class Session(BaseRouter):
     def get_session_documents(
         self,
-<<<<<<< HEAD
-        start_date: Optional[Union[str, date]] = None,  # Changed from start_datetime for consistency
-        end_date: Optional[Union[str, date]] = None,   # Changed from end_datetime for consistency
-=======
         start_date: Optional[Union[str, date]] = None,  # Changed from
         # start_datetime for consistency
         end_date: Optional[Union[str, date]] = None,    # Changed from
         # end_datetime for consistency
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         next_token: Optional[str] = None,
     ) -> SessionResponse:
         """

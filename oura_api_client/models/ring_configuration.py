@@ -1,15 +1,8 @@
 from pydantic import BaseModel, Field
-<<<<<<< HEAD
-from typing import List, Optional, Literal
-from datetime import datetime
-
-
-=======
 from typing import List, Optional
 from datetime import datetime
 # Enum-like fields will be handled with Literal
 from typing import Literal
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 
 class RingConfigurationModel(BaseModel):
@@ -47,10 +40,6 @@ class RingConfigurationModel(BaseModel):
 
     )
     # 'id' is already included
-<<<<<<< HEAD
-    set_up_at: Optional[datetime] = Field(None, alias="set_up_at")  # Changed from setup_at for Pythonic convention
-    size: Optional[int] = Field(None, alias="size")
-=======
     set_up_at: Optional[datetime] = Field(
 
         None, alias="set_up_at"
@@ -61,7 +50,6 @@ class RingConfigurationModel(BaseModel):
         None, alias="size"
 
     )
->>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
     # RingColor, RingDesign, RingHardwareType are effectively defined by Literals above
     # No separate models needed for them if they are just choices for a field.
