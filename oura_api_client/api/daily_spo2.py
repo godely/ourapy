@@ -40,7 +40,13 @@ class DailySpo2(BaseRouter):  # Renamed class to DailySpo2
         )
         return DailySpO2Response(**response)
 
+<<<<<<< HEAD
     def get_daily_spo2_document(self, document_id: str) -> DailySpO2Model:  # Renamed method and updated return type
+=======
+    def get_daily_spo2_document(
+        self, document_id: str
+    ) -> DailySpO2Model:  # Renamed method and updated return type
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         """
         Get a single daily SpO2 document.
 

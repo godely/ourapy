@@ -6,7 +6,10 @@ from oura_api_client.models.ring_configuration import (
     RingConfigurationModel
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 class RingConfiguration(BaseRouter):
     def get_ring_configuration_documents(
@@ -15,7 +18,11 @@ class RingConfiguration(BaseRouter):
         # as it often returns a single current configuration or a list of all historical ones.
         # However, if the API supports it (e.g. for historical configurations):
         start_date: Optional[Union[str, date]] = None,  # Kept for potential future use or specific API design
+<<<<<<< HEAD
         end_date: Optional[Union[str, date]] = None,  # Kept for potential future use
+=======
+        end_date: Optional[Union[str, date]] = None,   # Kept for potential future use
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         next_token: Optional[str] = None,
     ) -> RingConfigurationResponse:
         """

@@ -1,5 +1,9 @@
 import requests
+<<<<<<< HEAD
 from datetime import datetime, timedelta
+=======
+from datetime import datetime
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 from typing import Optional, Dict, Any
 
 
@@ -75,6 +79,11 @@ if __name__ == "__main__":
     client = OuraClient(ACCESS_TOKEN)
 
     # Get heart rate data for the last week
+<<<<<<< HEAD
+=======
+    from datetime import timedelta
+
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
     end_date = datetime.now().strftime("%Y-%m-%d")
     start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
 

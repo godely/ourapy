@@ -6,7 +6,10 @@ from oura_api_client.models.daily_resilience import (
     DailyResilienceModel
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 class DailyResilience(BaseRouter):
     def get_daily_resilience_documents(

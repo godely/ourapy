@@ -1,5 +1,9 @@
 from pydantic import BaseModel, Field
+<<<<<<< HEAD
 from typing import List, Optional
+=======
+from typing import List, Optional  # Added List
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 from datetime import date, datetime
 
 
@@ -23,6 +27,7 @@ class DailyReadinessModel(BaseModel):
     contributors: ReadinessContributors
     day: date
     score: Optional[int] = Field(None, alias="score")
+<<<<<<< HEAD
     temperature_deviation: Optional[float] = Field(None, alias="temperature_deviation")  # Deprecated
     temperature_trend_deviation: Optional[float] = Field(None, alias="temperature_trend_deviation")
     timestamp: datetime
@@ -35,6 +40,37 @@ class DailyReadinessModel(BaseModel):
     # but including as comments if they need to be reviewed from a more comprehensive spec
     # sleep_average: Optional[int] = Field(None, alias="sleep_average")  # Example if there was a sleep_average field
     # readiness_score_delta: Optional[int] = Field(None, alias="readiness_score_delta")  # This was in sleep, likely not here
+=======
+    temperature_deviation: Optional[float] = Field(
+        None, alias="temperature_deviation"
+    )  # Deprecated
+    temperature_trend_deviation: Optional[float] = Field(
+        None, alias="temperature_trend_deviation"
+    )
+    timestamp: datetime
+    # New fields from OpenAPI spec not in original snippet
+    activity_class_5_min: Optional[str] = Field(
+        None, alias="activity_class_5_min"
+    )  # New
+    hrv_balance_data: Optional[str] = Field(
+        None, alias="hrv_balance_data"
+    )  # New, assuming string, adjust if different type
+    spo2_percentage: Optional[float] = Field(
+        None, alias="spo2_percentage"
+    )  # New
+    # Fields from original DailyActivity/Sleep that might be relevant or
+    # were missed in initial Readiness scope
+    # Assuming these are not part of readiness based on typical Oura data
+    # separation,
+    # but including as comments if they need to be reviewed from a more
+    # comprehensive spec
+    # sleep_average: Optional[int] = Field(
+    #     None, alias="sleep_average"
+    # )  # Example if there was a sleep_average field
+    # readiness_score_delta: Optional[int] = Field(
+    #     None, alias="readiness_score_delta"
+    # )  # This was in sleep, likely not here
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 
 class DailyReadinessResponse(BaseModel):

@@ -6,7 +6,10 @@ from oura_api_client.models.sleep_time import (
     SleepTimeModel
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 class SleepTime(BaseRouter):
     def get_sleep_time_documents(

@@ -6,7 +6,10 @@ from oura_api_client.models.daily_stress import (
     DailyStressModel
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 class DailyStress(BaseRouter):
     def get_daily_stress_documents(

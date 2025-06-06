@@ -150,8 +150,15 @@ class TestDailyActivity(unittest.TestCase):
         }
         # Configure the mock_get object to simulate a successful response
         mock_response = MagicMock()
+<<<<<<< HEAD
         mock_response.raise_for_status.return_value = None  # Simulate no HTTP error
         mock_response.json.return_value = mock_response_json  # Set the JSON response
+=======
+        # Simulate no HTTP error
+        mock_response.raise_for_status.return_value = None
+        # Set the JSON response
+        mock_response.json.return_value = mock_response_json
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         mock_get.return_value = mock_response
 
         start_date_str = "2024-03-10"
@@ -444,13 +451,28 @@ class TestDailySleep(unittest.TestCase):
             daily_sleep_document.contributors, SleepContributors
         )
         self.assertEqual(daily_sleep_document.score, 85)
+<<<<<<< HEAD
         self.assertEqual(daily_sleep_document.bedtime_end, datetime.fromisoformat("2024-03-11T07:00:00+00:00"))
         self.assertEqual(daily_sleep_document.bedtime_start, datetime.fromisoformat("2024-03-10T22:00:00+00:00"))
+=======
+        self.assertEqual(
+            daily_sleep_document.bedtime_end,
+            datetime.fromisoformat("2024-03-11T07:00:00+00:00")
+        )
+        self.assertEqual(
+            daily_sleep_document.bedtime_start,
+            datetime.fromisoformat("2024-03-10T22:00:00+00:00")
+        )
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
         mock_get.assert_called_once_with(
             f"{self.client.BASE_URL}/v2/usercollection/daily_sleep/{document_id}",
             headers=self.client.headers,
             params=None,
+<<<<<<< HEAD
+=======
+
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         )
 
     @patch("requests.get")
@@ -617,6 +639,10 @@ class TestDailyReadiness(unittest.TestCase):
             f"{self.client.BASE_URL}/v2/usercollection/daily_readiness/{document_id}",
             headers=self.client.headers,
             params=None,
+<<<<<<< HEAD
+=======
+
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         )
 
     @patch("requests.get")
@@ -637,12 +663,25 @@ class TestSleep(unittest.TestCase):
     def test_get_sleep_documents(self, mock_get):
         # Reused from DailySleep for consistency
         mock_contributors_data = {
+<<<<<<< HEAD
             "deep_sleep": 70, "efficiency": 80, "latency": 90, "rem_sleep": 60,
             "restfulness": 75, "timing": 85, "total_sleep": 95,
         }
         mock_readiness_contributors_data = {  # Reused from DailyReadiness
             "activity_balance": 60, "body_temperature": 70, "hrv_balance": 80,
             "previous_day_activity": 90, "previous_night": 50, "recovery_index": 65,
+=======
+            "deep_sleep": 70, "efficiency": 80,
+            "latency": 90, "rem_sleep": 60,
+            "restfulness": 75, "timing": 85, "total_sleep": 95,
+        }
+        # Reused from DailyReadiness
+        mock_readiness_contributors_data = {
+            "activity_balance": 60, "body_temperature": 70,
+            "hrv_balance": 80,
+            "previous_day_activity": 90, "previous_night": 50,
+            "recovery_index": 65,
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
             "resting_heart_rate": 75, "sleep_balance": 85,
         }
         mock_data = [
@@ -716,7 +755,16 @@ class TestSleep(unittest.TestCase):
     @patch("requests.get")
     def test_get_sleep_documents_with_string_dates(self, mock_get):
         # Simplified mock data for this test
+<<<<<<< HEAD
         mock_data = [{"id": "sleep_doc_str_date", "day": "2024-03-10", "contributors": {"deep_sleep": 1}, "timestamp": "2024-03-10T22:00:00+00:00"}]
+=======
+        mock_data = [{
+            "id": "sleep_doc_str_date",
+            "day": "2024-03-10",
+            "contributors": {"deep_sleep": 1},
+            "timestamp": "2024-03-10T22:00:00+00:00"
+        }]
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         mock_response_json = {"data": mock_data, "next_token": None}
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
@@ -1278,7 +1326,13 @@ class TestEnhancedTag(unittest.TestCase):
             enhanced_tag_response.next_token, "next_enhanced_tag_token"
         )
         self.assertEqual(enhanced_tag_response.data[0].tag_type_code, "common_cold")
+<<<<<<< HEAD
         self.assertEqual(enhanced_tag_response.data[1].start_day, date(2024, 3, 15))
+=======
+        self.assertEqual(
+            enhanced_tag_response.data[1].start_day, date(2024, 3, 15)
+        )
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
         mock_get.assert_called_once_with(
             f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag",
@@ -1354,8 +1408,18 @@ class TestEnhancedTag(unittest.TestCase):
         self.assertEqual(enhanced_tag_document.id, document_id)
         self.assertEqual(enhanced_tag_document.tag_type_code, "stress")
         self.assertEqual(enhanced_tag_document.comment, "Tough day at work.")
+<<<<<<< HEAD
         self.assertEqual(enhanced_tag_document.start_time, datetime.fromisoformat("2024-03-10T10:00:00+00:00"))
         self.assertEqual(enhanced_tag_document.end_day, date(2024, 3, 10))
+=======
+        self.assertEqual(
+            enhanced_tag_document.start_time,
+            datetime.fromisoformat("2024-03-10T10:00:00+00:00")
+        )
+        self.assertEqual(
+            enhanced_tag_document.end_day, date(2024, 3, 10)
+        )
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
         mock_get.assert_called_once_with(
             f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag/{document_id}",
@@ -1416,8 +1480,17 @@ class TestDailySpo2(unittest.TestCase):
         self.assertIsInstance(daily_spo2_response, DailySpO2Response)
         self.assertEqual(len(daily_spo2_response.data), 2)
         self.assertIsInstance(daily_spo2_response.data[0], DailySpO2Model)
+<<<<<<< HEAD
         if daily_spo2_response.data[0].aggregated_values:  # Check if aggregated_values exists
             self.assertIsInstance(daily_spo2_response.data[0].aggregated_values, DailySpO2AggregatedValuesModel)
+=======
+        # Check if aggregated_values exists
+        if daily_spo2_response.data[0].aggregated_values:
+            self.assertIsInstance(
+                daily_spo2_response.data[0].aggregated_values,
+                DailySpO2AggregatedValuesModel
+            )
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         self.assertEqual(daily_spo2_response.next_token, "next_spo2_token")
         self.assertEqual(daily_spo2_response.data[0].spo2_percentage, 97.5)
 
@@ -1494,7 +1567,14 @@ class TestDailySpo2(unittest.TestCase):
         self.assertEqual(daily_spo2_document.spo2_percentage, 98.2)
         if daily_spo2_document.aggregated_values:
             self.assertEqual(daily_spo2_document.aggregated_values.average, 98.2)
+<<<<<<< HEAD
         self.assertEqual(daily_spo2_document.timestamp, datetime.fromisoformat("2024-03-11T00:00:00+00:00"))
+=======
+        self.assertEqual(
+            daily_spo2_document.timestamp,
+            datetime.fromisoformat("2024-03-11T00:00:00+00:00")
+        )
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
         mock_get.assert_called_once_with(
             f"{self.client.BASE_URL}/v2/usercollection/daily_spo2/{document_id}",
@@ -1533,8 +1613,19 @@ class TestSleepTime(unittest.TestCase):
             {
                 "id": "st_2",
                 "day": "2024-03-11",
+<<<<<<< HEAD
                 "optimal_bedtime": {"start_offset": -1500, "end_offset": 3900},  # Missing day_light_saving_time to test Optional
                 "recommendation": {"recommendation": "maintain_consistent_schedule"},
+=======
+                  # Missing day_light_saving_time to test Optional
+                "optimal_bedtime": {
+                    "start_offset": -1500,
+                    "end_offset": 3900
+                },
+                "recommendation": {
+                    "recommendation": "maintain_consistent_schedule"
+                },
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
                 "status": {"status": "optimal"},
                 "timestamp": "2024-03-11T04:00:00+00:00"
             },
@@ -1563,7 +1654,14 @@ class TestSleepTime(unittest.TestCase):
         self.assertEqual(len(sleep_time_response.data), 2)
         self.assertIsInstance(sleep_time_response.data[0], SleepTimeModel)
         if sleep_time_response.data[0].optimal_bedtime:
+<<<<<<< HEAD
             self.assertIsInstance(sleep_time_response.data[0].optimal_bedtime, SleepTimeWindow)
+=======
+            self.assertIsInstance(
+                sleep_time_response.data[0].optimal_bedtime,
+                SleepTimeWindow
+            )
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         if sleep_time_response.data[0].recommendation:
             self.assertIsInstance(
                 sleep_time_response.data[0].recommendation,
@@ -1680,7 +1778,12 @@ class TestSleepTime(unittest.TestCase):
     @patch("requests.get")
     def test_get_sleep_time_document_error(self, mock_get):
         # As per the implementation note, this endpoint might not exist.
+<<<<<<< HEAD
         # If it doesn't, the API would return a 404, which _make_request would raise as an HTTPError (a subclass of RequestException).
+=======
+        # If it doesn't, the API would return a 404, which _make_request would
+        # raise as an HTTPError (a subclass of RequestException).
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         mock_get.side_effect = RequestException("API error or Not Found")
         document_id = "test_st_single_error"
         with self.assertRaises(RequestException):

@@ -6,7 +6,10 @@ from oura_api_client.models.daily_cardiovascular_age import (
     DailyCardiovascularAgeModel
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 class DailyCardiovascularAge(BaseRouter):
     def get_daily_cardiovascular_age_documents(

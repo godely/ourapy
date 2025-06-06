@@ -6,7 +6,10 @@ from oura_api_client.models.enhanced_tag import (
     EnhancedTagModel
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 class EnhancedTag(BaseRouter):
     def get_enhanced_tag_documents(

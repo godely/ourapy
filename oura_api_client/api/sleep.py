@@ -1,14 +1,28 @@
 from typing import Optional, Union
 from datetime import date  # Keep date for start/end_date
 from oura_api_client.api.base import BaseRouter
+<<<<<<< HEAD
 from oura_api_client.models.sleep import SleepResponse, SleepModel  # Updated model import
+=======
+from oura_api_client.models.sleep import (
+    SleepResponse,
+    SleepModel  # Updated model import
+)
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 
 class Sleep(BaseRouter):  # Renamed class to Sleep
     def get_sleep_documents(  # Renamed method
         self,
+<<<<<<< HEAD
         start_date: Optional[Union[str, date]] = None,  # Changed parameter name for clarity
         end_date: Optional[Union[str, date]] = None,   # Changed parameter name for clarity
+=======
+        start_date: Optional[Union[str, date]] = None,  # Changed
+        # parameter name for clarity
+        end_date: Optional[Union[str, date]] = None,    # Changed
+        # parameter name for clarity
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         next_token: Optional[str] = None,
     ) -> SleepResponse:  # Updated return type
         """
@@ -38,7 +52,13 @@ class Sleep(BaseRouter):  # Renamed class to Sleep
         )
         return SleepResponse(**response)
 
+<<<<<<< HEAD
     def get_sleep_document(self, document_id: str) -> SleepModel:  # Renamed method and updated return type
+=======
+    def get_sleep_document(
+        self, document_id: str
+    ) -> SleepModel:  # Renamed method and updated return type
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
         """
         Get a single sleep document.
 

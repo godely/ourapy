@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 
+<<<<<<< HEAD
 class WebhookEventModel(BaseModel):  # New model for events within a subscription
     event_type: str = Field(alias="event_type")  # e.g., "oura_webhook_test.test_event" or specific data types
     # Additional fields for an event could be 'timestamp', 'user_id', 'data_id' if provided by API
@@ -27,6 +28,8 @@ class WebhookSubscriptionModel(BaseModel):
     event_types: Optional[List[str]] = Field(alias="event_types")
 
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 class WebhookOperation(str, Enum):
     CREATE = "create"
     UPDATE = "update"
@@ -77,15 +80,46 @@ class WebhookSubscriptionModel(BaseModel):
     # verification_token is not part of the response for GET /subscription or GET /subscription/{id}
 
 
+<<<<<<< HEAD
 class WebhookSubscriptionCreateRequest(BaseModel): # For POST request body
     callback_url: str = Field(..., alias="callback_url")
     verification_token: str = Field(..., alias="verification_token") # Made required as per spec
+=======
+class WebhookSubscriptionCreateRequest(BaseModel):  # For POST request body
+    callback_url: str = Field(
+
+
+
+    ..., alias="callback_url"
+
+
+
+)
+    verification_token: str = Field(
+
+        ..., alias="verification_token"
+
+    )  # Made required as per spec
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
     event_type: WebhookOperation = Field(..., alias="event_type")
     data_type: ExtApiV2DataType = Field(..., alias="data_type")
 
 
+<<<<<<< HEAD
 class WebhookSubscriptionUpdateRequest(BaseModel): # For PUT request body
     verification_token: str = Field(..., alias="verification_token") # Required
+=======
+class WebhookSubscriptionUpdateRequest(BaseModel):  # For PUT request body
+    verification_token: str = Field(
+
+
+
+    ..., alias="verification_token"
+
+
+
+)  # Required
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
     callback_url: Optional[str] = Field(None, alias="callback_url")
     event_type: Optional[WebhookOperation] = Field(None, alias="event_type")
     data_type: Optional[ExtApiV2DataType] = Field(

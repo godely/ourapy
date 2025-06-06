@@ -1,2 +1,9 @@
 [flake8]
+<<<<<<< HEAD
 ignore = E501
+=======
+ignore = E501,E121,E122,E126,E131,E261,E302,E303,E304,E305,W293,W504
+exclude = .git,__pycache__,.venv,env,venv,.direnv
+max-line-length = 127
+max-complexity = 15
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f

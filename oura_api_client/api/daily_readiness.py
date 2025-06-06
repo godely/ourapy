@@ -6,7 +6,10 @@ from oura_api_client.models.daily_readiness import (
     DailyReadinessModel
 )
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> cd7b1320f6e9ecc96b943f9eaa71c4a664f66e3f
 
 class DailyReadiness(BaseRouter):
     def get_daily_readiness_documents(
