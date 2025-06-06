@@ -1,7 +1,8 @@
-from typing import Optional, Union # Union is not strictly needed here but kept for consistency
-from datetime import date # date is not used by ring_configuration but kept for consistency
+from typing import Optional, Union  # Union is not strictly needed here but kept for consistency
+from datetime import date  # date is not used by ring_configuration but kept for consistency
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.ring_configuration import RingConfigurationResponse, RingConfigurationModel
+
 
 class RingConfiguration(BaseRouter):
     def get_ring_configuration_documents(
@@ -9,8 +10,8 @@ class RingConfiguration(BaseRouter):
         # Ring Configuration usually doesn't have start/end_date or pagination in typical REST APIs
         # as it often returns a single current configuration or a list of all historical ones.
         # However, if the API supports it (e.g. for historical configurations):
-        start_date: Optional[Union[str, date]] = None, # Kept for potential future use or specific API design
-        end_date: Optional[Union[str, date]] = None,   # Kept for potential future use
+        start_date: Optional[Union[str, date]] = None,  # Kept for potential future use or specific API design
+        end_date: Optional[Union[str, date]] = None,  # Kept for potential future use
         next_token: Optional[str] = None,
     ) -> RingConfigurationResponse:
         """
@@ -40,7 +41,7 @@ class RingConfiguration(BaseRouter):
                 params["end_date"] = end_date
         if next_token:
             params["next_token"] = next_token
-        
+
         # Remove None params manually as empty dict evaluates to False
         final_params = {k: v for k, v in params.items() if v is not None}
 

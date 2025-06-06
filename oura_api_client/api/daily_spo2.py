@@ -3,13 +3,14 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_spo2 import DailySpO2Response, DailySpO2Model
 
-class DailySpo2(BaseRouter): # Renamed class to DailySpo2
-    def get_daily_spo2_documents( # Renamed method
+
+class DailySpo2(BaseRouter):  # Renamed class to DailySpo2
+    def get_daily_spo2_documents(  # Renamed method
         self,
         start_date: Optional[Union[str, date]] = None,
         end_date: Optional[Union[str, date]] = None,
         next_token: Optional[str] = None,
-    ) -> DailySpO2Response: # Updated return type
+    ) -> DailySpO2Response:  # Updated return type
         """
         Get daily SpO2 documents.
 
@@ -34,7 +35,7 @@ class DailySpo2(BaseRouter): # Renamed class to DailySpo2
         response = self.client._make_request("/v2/usercollection/daily_spo2", params=params)
         return DailySpO2Response(**response)
 
-    def get_daily_spo2_document(self, document_id: str) -> DailySpO2Model: # Renamed method and updated return type
+    def get_daily_spo2_document(self, document_id: str) -> DailySpO2Model:  # Renamed method and updated return type
         """
         Get a single daily SpO2 document.
 

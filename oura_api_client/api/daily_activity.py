@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_activity import DailyActivityResponse, DailyActivityModel
 
+
 class DailyActivity(BaseRouter):
     def get_daily_activity_documents(
         self,

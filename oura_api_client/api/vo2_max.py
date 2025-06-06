@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.vo2_max import Vo2MaxResponse, Vo2MaxModel
 
+
 class Vo2Max(BaseRouter):
     def get_vo2_max_documents(
         self,

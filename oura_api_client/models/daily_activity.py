@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import date, datetime
 
+
 class ActivityContributors(BaseModel):
     meet_daily_targets: Optional[int] = Field(None, alias="meet_daily_targets")
     move_every_hour: Optional[int] = Field(None, alias="move_every_hour")
@@ -9,6 +10,7 @@ class ActivityContributors(BaseModel):
     stay_active: Optional[int] = Field(None, alias="stay_active")
     training_frequency: Optional[int] = Field(None, alias="training_frequency")
     training_volume: Optional[int] = Field(None, alias="training_volume")
+
 
 class DailyActivityModel(BaseModel):
     id: str
@@ -37,6 +39,7 @@ class DailyActivityModel(BaseModel):
     total_calories: Optional[int] = Field(None, alias="total_calories")
     day: date
     timestamp: datetime
+
 
 class DailyActivityResponse(BaseModel):
     data: List[DailyActivityModel]

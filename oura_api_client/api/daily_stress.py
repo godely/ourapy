@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_stress import DailyStressResponse, DailyStressModel
 
+
 class DailyStress(BaseRouter):
     def get_daily_stress_documents(
         self,

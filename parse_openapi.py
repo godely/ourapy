@@ -1,4 +1,6 @@
 import json
+import logging
+
 
 def parse_openapi_spec(spec_content):
     """
@@ -50,7 +52,6 @@ def parse_openapi_spec(spec_content):
     else:
         print("Warning: 'paths' attribute not found or is not a dictionary in the OpenAPI spec.")
 
-
     components_schemas_data = {}
     if "components" in spec and "schemas" in spec["components"] and isinstance(spec["components"]["schemas"], dict):
         for schema_name, schema_details in spec["components"]["schemas"].items():
@@ -59,6 +60,7 @@ def parse_openapi_spec(spec_content):
         print("Warning: 'components.schemas' attribute not found or is not a dictionary in the OpenAPI spec.")
 
     return paths_data, components_schemas_data
+
 
 if __name__ == "__main__":
     try:

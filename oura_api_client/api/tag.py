@@ -1,7 +1,8 @@
 from typing import Optional, Union
-from datetime import date # Using date for start_date and end_date
+from datetime import date  # Using date for start_date and end_date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.tag import TagResponse, TagModel
+
 
 class Tag(BaseRouter):
     def get_tag_documents(

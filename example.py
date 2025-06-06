@@ -46,7 +46,7 @@ def main():
         with open("heart_rate_data.json", "w") as f:
             json.dump(heart_rate_raw, f, indent=2)
 
-        print(f"Saved raw heart rate data to heart_rate_data.json")
+        print("Saved raw heart rate data to heart_rate_data.json")
 
         # Get personal info
         personal_info = client.personal.get_personal_info()

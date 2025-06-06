@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_resilience import DailyResilienceResponse, DailyResilienceModel
 
+
 class DailyResilience(BaseRouter):
     def get_daily_resilience_documents(
         self,

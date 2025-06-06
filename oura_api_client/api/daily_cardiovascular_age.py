@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_cardiovascular_age import DailyCardiovascularAgeResponse, DailyCardiovascularAgeModel
 
+
 class DailyCardiovascularAge(BaseRouter):
     def get_daily_cardiovascular_age_documents(
         self,

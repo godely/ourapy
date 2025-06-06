@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_sleep import DailySleepResponse, DailySleepModel
 
+
 class DailySleep(BaseRouter):
     def get_daily_sleep_documents(
         self,

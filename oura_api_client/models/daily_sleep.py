@@ -1,15 +1,18 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
+
 from datetime import date, datetime
 
+
 class SleepContributors(BaseModel):
-    deep_sleep: Optional[int] = Field(None, alias="deep_sleep")
+    deep_sleep: Optional[int] = Field(None, alias="deep_sleep")  # deep sleep in minutes
     efficiency: Optional[int] = Field(None, alias="efficiency")
     latency: Optional[int] = Field(None, alias="latency")
-    rem_sleep: Optional[int] = Field(None, alias="rem_sleep")
+    rem_sleep: Optional[int] = Field(None, alias="rem_sleep")  # REM sleep in minutes
     restfulness: Optional[int] = Field(None, alias="restfulness")
     timing: Optional[int] = Field(None, alias="timing")
-    total_sleep: Optional[int] = Field(None, alias="total_sleep")
+    total_sleep: Optional[int] = Field(None, alias="total_sleep")  # Total sleep in minutes
+
 
 class DailySleepModel(BaseModel):
     id: str
@@ -31,18 +34,19 @@ class DailySleepModel(BaseModel):
     readiness_score_delta: Optional[int] = Field(None, alias="readiness_score_delta")
     rem_sleep_duration: Optional[int] = Field(None, alias="rem_sleep_duration")
     restless_periods: Optional[int] = Field(None, alias="restless_periods")
-    sleep_phase_5_min: Optional[str] = Field(None, alias="sleep_phase_5_min") # Deprecated
+    sleep_phase_5_min: Optional[str] = Field(None, alias="sleep_phase_5_min")  # Deprecated
     time_in_bed: Optional[int] = Field(None, alias="time_in_bed")
     total_sleep_duration: Optional[int] = Field(None, alias="total_sleep_duration")
-    type: Optional[str] = Field(None, alias="type") # Enum: "deleted", "long_sleep", "main_sleep", "nap", "rest"
+    type: Optional[str] = Field(None, alias="type")  # Enum: "deleted", "long_sleep", "main_sleep", "nap", "rest"
     average_hrv: Optional[float] = Field(None, alias="average_hrv")
     awake_time: Optional[int] = Field(None, alias="awake_time")
-    hr_60_second_average: Optional[List[int]] = Field(None, alias="hr_60_second_average") # New in v2.10
-    hrv_4_hour_average: Optional[List[float]] = Field(None, alias="hrv_4_hour_average") # New in v2.10
-    readiness: Optional[str] = Field(None, alias="readiness") # New in v2.10, but type not specified, assuming string for now
+    hr_60_second_average: Optional[List[int]] = Field(None, alias="hr_60_second_average")  # New in v2.10
+    hrv_4_hour_average: Optional[List[float]] = Field(None, alias="hrv_4_hour_average")  # New in v2.10
+    readiness: Optional[str] = Field(None, alias="readiness")  # New in v2.10, but type not specified, assuming string for now
     temperature_delta: Optional[float] = Field(None, alias="temperature_delta")
-    temperature_deviation: Optional[float] = Field(None, alias="temperature_deviation") # Deprecated
+    temperature_deviation: Optional[float] = Field(None, alias="temperature_deviation")  # Deprecated
     temperature_trend_deviation: Optional[float] = Field(None, alias="temperature_trend_deviation")
+
 
 class DailySleepResponse(BaseModel):
     data: List[DailySleepModel]

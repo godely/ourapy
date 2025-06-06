@@ -3,6 +3,7 @@ from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.rest_mode_period import RestModePeriodResponse, RestModePeriodModel
 
+
 class RestModePeriod(BaseRouter):
     def get_rest_mode_period_documents(
         self,

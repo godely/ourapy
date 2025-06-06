@@ -1,7 +1,6 @@
 """Heart rate endpoint implementations."""
 
 from typing import Optional, Dict, Any, Union
-from datetime import date, datetime
 
 from ..models.heartrate import HeartRateResponse
 

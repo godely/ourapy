@@ -1,4 +1,4 @@
-from typing import Optional, List # Added List
+from typing import Optional, List  # Added List
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.webhook import (
     WebhookSubscriptionModel,
@@ -6,6 +6,7 @@ from oura_api_client.models.webhook import (
     WebhookSubscriptionCreateRequest,
     WebhookSubscriptionUpdateRequest
 )
+
 
 class Webhook(BaseRouter):
     def list_webhook_subscriptions(self) -> WebhookListResponse:
