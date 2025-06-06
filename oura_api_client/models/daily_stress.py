@@ -16,20 +16,19 @@ class DailyStressModel(BaseModel):
         None, alias="stress_medium"
     )  # Duration of medium stress in seconds
     timestamp: datetime  # Timestamp of the summary
-    # Based on OpenAPI spec, additional fields might include:
-    # recovery_high: Optional[int] = Field(
-    #     None, alias="recovery_high"
-    # )  # Duration of high recovery in seconds
-    # recovery_low: Optional[int] = Field(
-    #     None, alias="recovery_low"
-    # )   # Duration of low recovery in seconds
-    # recovery_medium: Optional[int] = Field(
-    #     None, alias="recovery_medium"
-    # )  # Duration of medium recovery in seconds
-    # daytime_stress_score: Optional[int] = Field(
-    #     None, alias="daytime_stress_score"
-    # )  # Overall stress score
-    # Deprecated fields like `rest_mode_state` are not included unless specified as current.
+    # Based on OpenAPI spec, additional fields:
+    recovery_high: Optional[int] = Field(
+        None, alias="recovery_high"
+    )  # Duration of high recovery in seconds
+    recovery_low: Optional[int] = Field(
+        None, alias="recovery_low"
+    )   # Duration of low recovery in seconds
+    recovery_medium: Optional[int] = Field(
+        None, alias="recovery_medium"
+    )  # Duration of medium recovery in seconds
+    day_summary: Optional[str] = Field(
+        None, alias="day_summary"
+    )  # Summary of the day's stress
 
 
 class DailyStressResponse(BaseModel):

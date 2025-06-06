@@ -1977,6 +1977,7 @@ class TestDailyStress(unittest.TestCase):
                 "stress_high": 1200,
                 "recovery_high": 3600,
                 "day_summary": "restored",
+                "timestamp": "2024-03-15T08:00:00Z",
             }
         ]
         mock_response_json = {
@@ -2044,6 +2045,7 @@ class TestDailyStress(unittest.TestCase):
             "stress_high": 1500,
             "recovery_high": 3000,
             "day_summary": "stressful",
+            "timestamp": "2024-03-16T08:00:00Z",
         }
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
@@ -2179,6 +2181,7 @@ class TestDailyResilience(unittest.TestCase):
                 "day": "2024-03-18",
                 "contributors": mock_contributors_data,
                 "level": "solid",
+                "timestamp": "2024-03-18T08:00:00Z",
             }
         ]
         mock_response_json = {
@@ -2252,6 +2255,7 @@ class TestDailyResilience(unittest.TestCase):
             "day": "2024-03-19",
             "contributors": mock_contributors_data,
             "level": "exceptional",
+            "timestamp": "2024-03-19T08:00:00Z",
         }
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
@@ -2390,6 +2394,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
                 "id": "cva_doc_api_id_1",
                 "day": "2024-03-20",
                 "vascular_age": 30.5,  # Changed to float to match spec
+                "timestamp": "2024-03-20T08:00:00Z",
             }
         ]
         mock_response_json = {
@@ -2456,6 +2461,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             "id": document_id,
             "day": "2024-03-21",
             "vascular_age": 32.0,  # Changed to float
+            "timestamp": "2024-03-21T08:00:00Z",
         }
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None

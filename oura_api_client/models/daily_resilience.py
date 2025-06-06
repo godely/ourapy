@@ -4,25 +4,30 @@ from typing import List, Optional
 from datetime import date, datetime
 
 
+class ResilienceContributors(BaseModel):
+    sleep_recovery: Optional[float] = Field(
+        None, alias="sleep_recovery"
+    )
+    daytime_recovery: Optional[float] = Field(
+        None, alias="daytime_recovery"
+    )
+    stress: Optional[float] = Field(
+        None, alias="stress"
+    )
+
+
 class DailyResilienceModel(BaseModel):
     id: str
     day: date
     resilience_score: Optional[float] = Field(
         None, alias="resilience_score"
     )  # Overall resilience score
-    # Based on typical resilience metrics, fields could include:
-    # stress_regulation: Optional[float] = Field(
-    #     None, alias="stress_regulation"
-    # )
-    # recovery_patterns: Optional[float] = Field(
-    #     None, alias="recovery_patterns"
-    # )
-    # emotional_balance: Optional[float] = Field(
-    #     None, alias="emotional_balance"
-    # )
-    # These are examples; actual fields depend on the Oura API's definition
-    # of resilience.
-    # For now, focusing on a core `resilience_score`.
+    contributors: Optional[ResilienceContributors] = Field(
+        None, alias="contributors"
+    )  # Resilience contributors
+    level: Optional[str] = Field(
+        None, alias="level"
+    )  # Resilience level
     timestamp: datetime  # Timestamp of the summary
 
 
