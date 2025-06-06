@@ -150,5 +150,3 @@ class Webhook(BaseRouter):
             # unless the spec implies a body, which it does not for this path.
         )
         return WebhookSubscriptionModel(**response_data)
-
-[end of oura_api_client/api/webhook.py]
