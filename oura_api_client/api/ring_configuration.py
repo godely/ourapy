@@ -49,7 +49,7 @@ class RingConfiguration(BaseRouter):
         final_params = {k: v for k, v in params.items() if v is not None}
 
         response = self.client._make_request(
-            "/v2/usercollection/ring_configuration",
+            "/usercollection/ring_configuration",
             params=final_params if final_params else None
         )
         return RingConfigurationResponse(**response)
@@ -67,6 +67,6 @@ class RingConfiguration(BaseRouter):
             RingConfigurationModel: Response containing ring configuration data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/ring_configuration/{document_id}"
+            f"/usercollection/ring_configuration/{document_id}"
         )
         return RingConfigurationModel(**response)

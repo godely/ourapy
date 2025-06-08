@@ -36,7 +36,7 @@ class DailySleep(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/daily_sleep", params=params
+            "/usercollection/daily_sleep", params=params
         )
         return DailySleepResponse(**response)
 
@@ -51,6 +51,6 @@ class DailySleep(BaseRouter):
             DailySleepModel: Response containing daily sleep data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/daily_sleep/{document_id}"
+            f"/usercollection/daily_sleep/{document_id}"
         )
         return DailySleepModel(**response)

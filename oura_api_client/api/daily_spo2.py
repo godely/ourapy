@@ -36,7 +36,7 @@ class DailySpo2(BaseRouter):  # Renamed class to DailySpo2
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/daily_spo2", params=params
+            "/usercollection/daily_spo2", params=params
         )
         return DailySpO2Response(**response)
 
@@ -53,6 +53,6 @@ class DailySpo2(BaseRouter):  # Renamed class to DailySpo2
             DailySpO2Model: Response containing daily SpO2 data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/daily_spo2/{document_id}"
+            f"/usercollection/daily_spo2/{document_id}"
         )
         return DailySpO2Model(**response)

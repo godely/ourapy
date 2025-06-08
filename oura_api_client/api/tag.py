@@ -33,7 +33,7 @@ class Tag(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/tag", params=params
+            "/usercollection/tag", params=params
         )
         return TagResponse(**response)
 
@@ -48,6 +48,6 @@ class Tag(BaseRouter):
             TagModel: Response containing tag data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/tag/{document_id}"
+            f"/usercollection/tag/{document_id}"
         )
         return TagModel(**response)

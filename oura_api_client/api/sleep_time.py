@@ -36,7 +36,7 @@ class SleepTime(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/sleep_time", params=params
+            "/usercollection/sleep_time", params=params
         )
         return SleepTimeResponse(**response)
 
@@ -58,6 +58,6 @@ class SleepTime(BaseRouter):
         # sleep_time. Proceeding with the assumption it might exist or
         # for future compatibility.
         response = self.client._make_request(
-            f"/v2/usercollection/sleep_time/{document_id}"
+            f"/usercollection/sleep_time/{document_id}"
         )
         return SleepTimeModel(**response)

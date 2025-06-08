@@ -36,7 +36,7 @@ class EnhancedTag(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/enhanced_tag", params=params
+            "/usercollection/enhanced_tag", params=params
         )
         return EnhancedTagResponse(**response)
 
@@ -51,6 +51,6 @@ class EnhancedTag(BaseRouter):
             EnhancedTagModel: Response containing enhanced_tag data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/enhanced_tag/{document_id}"
+            f"/usercollection/enhanced_tag/{document_id}"
         )
         return EnhancedTagModel(**response)

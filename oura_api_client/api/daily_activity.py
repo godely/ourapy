@@ -33,7 +33,7 @@ class DailyActivity(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/daily_activity", params=params
+            "/usercollection/daily_activity", params=params
         )
         return DailyActivityResponse(**response)
 
@@ -50,6 +50,6 @@ class DailyActivity(BaseRouter):
             DailyActivityModel: Response containing daily activity data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/daily_activity/{document_id}"
+            f"/usercollection/daily_activity/{document_id}"
         )
         return DailyActivityModel(**response)
