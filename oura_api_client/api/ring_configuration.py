@@ -1,6 +1,7 @@
 from typing import Optional, Union  # Union is not strictly needed here but kept for consistency
 from datetime import date  # date is not used by ring_configuration but kept for consistency
 from oura_api_client.api.base import BaseRouter
+from oura_api_client.utils import build_query_params
 from oura_api_client.models.ring_configuration import (
     RingConfigurationResponse,
     RingConfigurationModel
@@ -31,22 +32,7 @@ class RingConfiguration(BaseRouter):
         Returns:
             RingConfigurationResponse: Response containing ring configuration data.
         """
-        params = {}
-        if start_date:
-            if isinstance(start_date, date):
-                params["start_date"] = start_date.isoformat()
-            else:
-                params["start_date"] = start_date
-        if end_date:
-            if isinstance(end_date, date):
-                params["end_date"] = end_date.isoformat()
-            else:
-                params["end_date"] = end_date
-        if next_token:
-            params["next_token"] = next_token
-
-        # Remove None params manually as empty dict evaluates to False
-        final_params = {k: v for k, v in params.items() if v is not None}
+        params = build_query_params(start_date, end_date, next_token)
 
         response = self.client._make_request(
             "/usercollection/ring_configuration",
