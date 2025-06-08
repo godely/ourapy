@@ -36,7 +36,7 @@ class RingConfiguration(BaseRouter):
 
         response = self.client._make_request(
             "/usercollection/ring_configuration",
-            params=final_params if final_params else None
+            params=params if params else None
         )
         return RingConfigurationResponse(**response)
 
