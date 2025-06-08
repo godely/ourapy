@@ -36,7 +36,7 @@ class Session(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/session", params=params
+            "/usercollection/session", params=params
         )
         return SessionResponse(**response)
 
@@ -51,6 +51,6 @@ class Session(BaseRouter):
             SessionModel: Response containing session data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/session/{document_id}"
+            f"/usercollection/session/{document_id}"
         )
         return SessionModel(**response)

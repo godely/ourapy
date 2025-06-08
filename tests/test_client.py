@@ -181,7 +181,7 @@ class TestDailyActivity(unittest.TestCase):
         # if client.get is not available
         actual_call_url = mock_get.call_args[0][0]
         base_url = self.client.BASE_URL
-        expected_url = f"{base_url}/v2/usercollection/daily_activity"
+        expected_url = f"{base_url}/usercollection/daily_activity"
         self.assertTrue(actual_call_url.endswith(expected_url))
 
         called_params = mock_get.call_args[1]['params']
@@ -215,7 +215,7 @@ class TestDailyActivity(unittest.TestCase):
         )
         actual_call_url = mock_get.call_args[0][0]
         base_url = self.client.BASE_URL
-        expected_url = f"{base_url}/v2/usercollection/daily_activity"
+        expected_url = f"{base_url}/usercollection/daily_activity"
         self.assertTrue(actual_call_url.endswith(expected_url))
 
         called_params = mock_get.call_args[1]['params']
@@ -283,7 +283,7 @@ class TestDailyActivity(unittest.TestCase):
 
         actual_call_url = mock_get.call_args[0][0]
         base_url = self.client.BASE_URL
-        expected_url = f"{base_url}/v2/usercollection/daily_activity/{document_id}"
+        expected_url = f"{base_url}/usercollection/daily_activity/{document_id}"
         self.assertTrue(actual_call_url.endswith(expected_url))
 
         called_params = mock_get.call_args[1]['params']
@@ -362,7 +362,7 @@ class TestDailySleep(unittest.TestCase):
         self.assertEqual(daily_sleep_response.next_token, "next_sleep_token")
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_sleep",
+            f"{self.client.BASE_URL}/usercollection/daily_sleep",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -396,7 +396,7 @@ class TestDailySleep(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_sleep",
+            f"{self.client.BASE_URL}/usercollection/daily_sleep",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -456,7 +456,7 @@ class TestDailySleep(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_sleep/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/daily_sleep/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -525,7 +525,7 @@ class TestDailyReadiness(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_readiness",
+            f"{self.client.BASE_URL}/usercollection/daily_readiness",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -560,7 +560,7 @@ class TestDailyReadiness(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_readiness",
+            f"{self.client.BASE_URL}/usercollection/daily_readiness",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -623,7 +623,7 @@ class TestDailyReadiness(unittest.TestCase):
         self.assertEqual(daily_readiness_document.spo2_percentage, 98.5)
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_readiness/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/daily_readiness/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -717,7 +717,7 @@ class TestSleep(unittest.TestCase):
         self.assertEqual(sleep_response.next_token, "next_sleep_doc_token")
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/sleep",
+            f"{self.client.BASE_URL}/usercollection/sleep",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -750,7 +750,7 @@ class TestSleep(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/sleep",
+            f"{self.client.BASE_URL}/usercollection/sleep",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -801,7 +801,7 @@ class TestSleep(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/sleep/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/sleep/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -863,7 +863,7 @@ class TestSession(unittest.TestCase):
         self.assertEqual(session_response.next_token, "next_session_token")
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/session",
+            f"{self.client.BASE_URL}/usercollection/session",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -898,7 +898,7 @@ class TestSession(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/session",
+            f"{self.client.BASE_URL}/usercollection/session",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -946,7 +946,7 @@ class TestSession(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/session/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/session/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -1003,7 +1003,7 @@ class TestTag(unittest.TestCase):
         self.assertEqual(tag_response.next_token, "next_tag_token")
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/tag",
+            f"{self.client.BASE_URL}/usercollection/tag",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -1037,7 +1037,7 @@ class TestTag(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/tag",
+            f"{self.client.BASE_URL}/usercollection/tag",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -1078,7 +1078,7 @@ class TestTag(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/tag/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/tag/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -1143,7 +1143,7 @@ class TestWorkout(unittest.TestCase):
         self.assertEqual(workout_response.next_token, "next_workout_token")
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/workout",
+            f"{self.client.BASE_URL}/usercollection/workout",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -1180,7 +1180,7 @@ class TestWorkout(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/workout",
+            f"{self.client.BASE_URL}/usercollection/workout",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -1230,7 +1230,7 @@ class TestWorkout(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/workout/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/workout/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -1302,7 +1302,7 @@ class TestEnhancedTag(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag",
+            f"{self.client.BASE_URL}/usercollection/enhanced_tag",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -1336,7 +1336,7 @@ class TestEnhancedTag(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag",
+            f"{self.client.BASE_URL}/usercollection/enhanced_tag",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -1384,7 +1384,7 @@ class TestEnhancedTag(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/enhanced_tag/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/enhanced_tag/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -1452,7 +1452,7 @@ class TestDailySpo2(unittest.TestCase):
         self.assertEqual(daily_spo2_response.data[0].spo2_percentage, 97.5)
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2",
+            f"{self.client.BASE_URL}/usercollection/daily_spo2",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -1486,7 +1486,7 @@ class TestDailySpo2(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2",
+            f"{self.client.BASE_URL}/usercollection/daily_spo2",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -1530,7 +1530,7 @@ class TestDailySpo2(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/daily_spo2/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/daily_spo2/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -1620,7 +1620,7 @@ class TestSleepTime(unittest.TestCase):
         self.assertEqual(sleep_time_response.data[0].day, date(2024, 3, 10))
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/sleep_time",
+            f"{self.client.BASE_URL}/usercollection/sleep_time",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -1654,7 +1654,7 @@ class TestSleepTime(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/sleep_time",
+            f"{self.client.BASE_URL}/usercollection/sleep_time",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -1713,7 +1713,7 @@ class TestSleepTime(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/sleep_time/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/sleep_time/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -1783,7 +1783,7 @@ class TestRestModePeriod(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period",
+            f"{self.client.BASE_URL}/usercollection/rest_mode_period",
             headers=self.client.headers,
             params={
                 "start_date": start_date_str,
@@ -1817,7 +1817,7 @@ class TestRestModePeriod(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period",
+            f"{self.client.BASE_URL}/usercollection/rest_mode_period",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
 
@@ -1865,7 +1865,7 @@ class TestRestModePeriod(unittest.TestCase):
         )
 
         mock_get.assert_called_once_with(
-            f"{self.client.BASE_URL}/v2/usercollection/rest_mode_period/{document_id}",
+            f"{self.client.BASE_URL}/usercollection/rest_mode_period/{document_id}",
             headers=self.client.headers,
             params=None,
 
@@ -1897,7 +1897,7 @@ class TestDailyStress(unittest.TestCase):
         response = self.client.daily_stress.get_daily_stress_documents()
         self.assertIsInstance(response, DailyStressResponse)
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_stress",
+            f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={},
         )
@@ -1914,7 +1914,7 @@ class TestDailyStress(unittest.TestCase):
             start_date="2024-01-01"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_stress",
+            f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"start_date": "2024-01-01"},
         )
@@ -1929,7 +1929,7 @@ class TestDailyStress(unittest.TestCase):
 
         self.client.daily_stress.get_daily_stress_documents(end_date="2024-01-31")
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_stress",
+            f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"end_date": "2024-01-31"},
         )
@@ -1946,7 +1946,7 @@ class TestDailyStress(unittest.TestCase):
             start_date="2024-01-01", end_date="2024-01-31"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_stress",
+            f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"start_date": "2024-01-01", "end_date": "2024-01-31"},
         )
@@ -1963,7 +1963,7 @@ class TestDailyStress(unittest.TestCase):
             next_token="some_token"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_stress",
+            f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"next_token": "some_token"},
         )
@@ -2001,7 +2001,7 @@ class TestDailyStress(unittest.TestCase):
         self.assertEqual(response.data[0].day_summary, "restored")
         self.assertEqual(response.next_token, "stress_next_token")
         mock_get.assert_called_with(
-            f"{self.base_url}/v2/usercollection/daily_stress",
+            f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"start_date": "2024-03-15"},
         )
@@ -2061,7 +2061,7 @@ class TestDailyStress(unittest.TestCase):
         self.assertEqual(response.day_summary, "stressful")
 
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_stress/{document_id}",
+            f"{self.base_url}/usercollection/daily_stress/{document_id}",
             headers=self.client.headers,
             params=None,  # No params for single document GET
         )
@@ -2095,7 +2095,7 @@ class TestDailyResilience(unittest.TestCase):
         response = self.client.daily_resilience.get_daily_resilience_documents()
         self.assertIsInstance(response, DailyResilienceResponse)
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_resilience",
+            f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={},
         )
@@ -2112,7 +2112,7 @@ class TestDailyResilience(unittest.TestCase):
             start_date="2024-02-01"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_resilience",
+            f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"start_date": "2024-02-01"},
         )
@@ -2129,7 +2129,7 @@ class TestDailyResilience(unittest.TestCase):
             end_date="2024-02-28"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_resilience",
+            f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"end_date": "2024-02-28"},
         )
@@ -2146,7 +2146,7 @@ class TestDailyResilience(unittest.TestCase):
             start_date="2024-02-01", end_date="2024-02-28"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_resilience",
+            f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"start_date": "2024-02-01", "end_date": "2024-02-28"},
         )
@@ -2163,7 +2163,7 @@ class TestDailyResilience(unittest.TestCase):
             next_token="res_token"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_resilience",
+            f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"next_token": "res_token"},
         )
@@ -2207,7 +2207,7 @@ class TestDailyResilience(unittest.TestCase):
         self.assertEqual(model_item.level, "solid")
         self.assertEqual(response.next_token, "res_next_token")
         mock_get.assert_called_with(
-            f"{self.base_url}/v2/usercollection/daily_resilience",
+            f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"start_date": "2024-03-18"},
         )
@@ -2274,7 +2274,7 @@ class TestDailyResilience(unittest.TestCase):
         self.assertEqual(response.level, "exceptional")
 
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_resilience/{document_id}",
+            f"{self.base_url}/usercollection/daily_resilience/{document_id}",
             headers=self.client.headers,
             params=None,
         )
@@ -2312,7 +2312,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
         )
         self.assertIsInstance(response, DailyCardiovascularAgeResponse)
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={},
         )
@@ -2329,7 +2329,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             start_date="2024-03-01"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"start_date": "2024-03-01"},
         )
@@ -2346,7 +2346,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             end_date="2024-03-31"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"end_date": "2024-03-31"},
         )
@@ -2363,7 +2363,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             start_date="2024-03-01", end_date="2024-03-31"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"start_date": "2024-03-01", "end_date": "2024-03-31"},
         )
@@ -2380,7 +2380,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             next_token="cva_token"
         )
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"next_token": "cva_token"},
         )
@@ -2419,7 +2419,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
         self.assertEqual(model_item.vascular_age, 30.5)
         self.assertEqual(response.next_token, "cva_next_token")
         mock_get.assert_called_with(
-            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age",
+            f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"start_date": "2024-03-20"},
         )
@@ -2478,7 +2478,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
         self.assertEqual(response.vascular_age, 32.0)
 
         mock_get.assert_called_once_with(
-            f"{self.base_url}/v2/usercollection/daily_cardiovascular_age/{document_id}",
+            f"{self.base_url}/usercollection/daily_cardiovascular_age/{document_id}",
             headers=self.client.headers,
             params=None,
         )
@@ -2502,7 +2502,7 @@ class TestVo2Max(unittest.TestCase):
 
         self.client = OuraClient(access_token="test_token")
         self.base_url = self.client.BASE_URL
-        self.correct_path_segment = "/v2/usercollection/vO2_max"  # Note the casing
+        self.correct_path_segment = "/usercollection/vO2_max"  # Note the casing
 
     @patch("requests.get")
     def test_get_vo2_max_documents_no_params(self, mock_get):

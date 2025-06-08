@@ -36,7 +36,7 @@ class DailyStress(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/daily_stress", params=params
+            "/usercollection/daily_stress", params=params
         )
         return DailyStressResponse(**response)
 
@@ -51,6 +51,6 @@ class DailyStress(BaseRouter):
             DailyStressModel: Response containing daily stress data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/daily_stress/{document_id}"
+            f"/usercollection/daily_stress/{document_id}"
         )
         return DailyStressModel(**response)

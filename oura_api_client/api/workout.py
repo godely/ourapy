@@ -33,7 +33,7 @@ class Workout(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/workout", params=params
+            "/usercollection/workout", params=params
         )
         return WorkoutResponse(**response)
 
@@ -48,6 +48,6 @@ class Workout(BaseRouter):
             WorkoutModel: Response containing workout data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/workout/{document_id}"
+            f"/usercollection/workout/{document_id}"
         )
         return WorkoutModel(**response)

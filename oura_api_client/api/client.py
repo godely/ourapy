@@ -71,7 +71,7 @@ class OuraClient:
         """Make a request to the Oura API.
 
         Args:
-            endpoint (str): The API endpoint to call
+            endpoint (str): The API endpoint to call (should start with /)
             params (dict, optional): Query parameters for the request
             method (str): HTTP method to use (default: GET)
 
@@ -81,6 +81,14 @@ class OuraClient:
         Raises:
             requests.exceptions.RequestException: If the API request fails
         """
+        # Ensure endpoint starts with /
+        if not endpoint.startswith('/'):
+            endpoint = f"/{endpoint}"
+        
+        # Remove any duplicate /v2 prefix if present
+        if endpoint.startswith('/v2/'):
+            endpoint = endpoint[3:]  # Remove '/v2' prefix
+        
         url = f"{self.BASE_URL}{endpoint}"
 
         if method.upper() == "GET":

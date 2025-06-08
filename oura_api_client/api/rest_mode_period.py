@@ -36,7 +36,7 @@ class RestModePeriod(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/rest_mode_period", params=params
+            "/usercollection/rest_mode_period", params=params
         )
         return RestModePeriodResponse(**response)
 
@@ -53,6 +53,6 @@ class RestModePeriod(BaseRouter):
             RestModePeriodModel: Response containing rest_mode_period data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/rest_mode_period/{document_id}"
+            f"/usercollection/rest_mode_period/{document_id}"
         )
         return RestModePeriodModel(**response)

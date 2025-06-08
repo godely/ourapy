@@ -46,7 +46,7 @@ class Webhook(BaseRouter):
         """
         headers = self._get_webhook_headers()
         response_data = self.client._make_request(
-            "/v2/webhook/subscription",
+            "/webhook/subscription",
             headers=headers
         )
         # API returns a list of subscriptions directly
@@ -77,7 +77,7 @@ class Webhook(BaseRouter):
             verification_token=verification_token,
         )
         response_data = self.client._make_request(
-            "/v2/webhook/subscription",
+            "/webhook/subscription",
             method="POST",
             json_data=request_body.model_dump(
                 by_alias=True
@@ -95,7 +95,7 @@ class Webhook(BaseRouter):
         """
         headers = self._get_webhook_headers()
         response_data = self.client._make_request(
-            f"/v2/webhook/subscription/{subscription_id}",
+            f"/webhook/subscription/{subscription_id}",
             headers=headers
         )
         return WebhookSubscriptionModel(**response_data)
@@ -123,7 +123,7 @@ class Webhook(BaseRouter):
             data_type=data_type,
         )
         response_data = self.client._make_request(
-            f"/v2/webhook/subscription/{subscription_id}",
+            f"/webhook/subscription/{subscription_id}",
             method="PUT",
             json_data=request_body.model_dump(
                 by_alias=True, exclude_none=True
@@ -139,7 +139,7 @@ class Webhook(BaseRouter):
         """
         headers = self._get_webhook_headers()
         self.client._make_request(
-            f"/v2/webhook/subscription/{subscription_id}",
+            f"/webhook/subscription/{subscription_id}",
             method="DELETE",
             headers=headers
         )
@@ -160,7 +160,7 @@ class Webhook(BaseRouter):
         #      headers['Content-Type'] = 'application/json'
 
         response_data = self.client._make_request(
-            f"/v2/webhook/subscription/renew/{subscription_id}",
+            f"/webhook/subscription/renew/{subscription_id}",
             method="PUT",
             headers=headers
             # No json_data for this specific renew endpoint as per typical

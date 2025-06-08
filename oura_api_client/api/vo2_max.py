@@ -33,7 +33,7 @@ class Vo2Max(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/vO2_max", params=params
+            "/usercollection/vO2_max", params=params
         )
         return Vo2MaxResponse(**response)
 
@@ -48,6 +48,6 @@ class Vo2Max(BaseRouter):
             Vo2MaxModel: Response containing VO2 max data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/vO2_max/{document_id}"
+            f"/usercollection/vO2_max/{document_id}"
         )
         return Vo2MaxModel(**response)

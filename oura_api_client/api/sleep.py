@@ -39,7 +39,7 @@ class Sleep(BaseRouter):  # Renamed class to Sleep
         params = {k: v for k, v in params.items() if v is not None}
         # Corrected endpoint URL from daily_sleep to sleep
         response = self.client._make_request(
-            "/v2/usercollection/sleep", params=params
+            "/usercollection/sleep", params=params
         )
         return SleepResponse(**response)
 
@@ -57,6 +57,6 @@ class Sleep(BaseRouter):  # Renamed class to Sleep
         """
         # Corrected endpoint URL from daily_sleep to sleep
         response = self.client._make_request(
-            f"/v2/usercollection/sleep/{document_id}"
+            f"/usercollection/sleep/{document_id}"
         )
         return SleepModel(**response)

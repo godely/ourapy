@@ -36,7 +36,7 @@ class DailyReadiness(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/daily_readiness", params=params
+            "/usercollection/daily_readiness", params=params
         )
         return DailyReadinessResponse(**response)
 
@@ -53,6 +53,6 @@ class DailyReadiness(BaseRouter):
             DailyReadinessModel: Response containing daily readiness data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/daily_readiness/{document_id}"
+            f"/usercollection/daily_readiness/{document_id}"
         )
         return DailyReadinessModel(**response)

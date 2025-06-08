@@ -36,7 +36,7 @@ class DailyResilience(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/daily_resilience", params=params
+            "/usercollection/daily_resilience", params=params
         )
         return DailyResilienceResponse(**response)
 
@@ -53,6 +53,6 @@ class DailyResilience(BaseRouter):
             DailyResilienceModel: Response containing daily resilience data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/daily_resilience/{document_id}"
+            f"/usercollection/daily_resilience/{document_id}"
         )
         return DailyResilienceModel(**response)

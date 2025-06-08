@@ -37,7 +37,7 @@ class DailyCardiovascularAge(BaseRouter):
         }
         params = {k: v for k, v in params.items() if v is not None}
         response = self.client._make_request(
-            "/v2/usercollection/daily_cardiovascular_age", params=params
+            "/usercollection/daily_cardiovascular_age", params=params
         )
         return DailyCardiovascularAgeResponse(**response)
 
@@ -55,6 +55,6 @@ class DailyCardiovascularAge(BaseRouter):
                 cardiovascular age data.
         """
         response = self.client._make_request(
-            f"/v2/usercollection/daily_cardiovascular_age/{document_id}"
+            f"/usercollection/daily_cardiovascular_age/{document_id}"
         )
         return DailyCardiovascularAgeModel(**response)
