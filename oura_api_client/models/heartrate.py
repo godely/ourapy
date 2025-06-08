@@ -1,15 +1,13 @@
 """Models for heart rate data."""
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
 
-@dataclass
-
-class HeartRateSample:
+class HeartRateSample(BaseModel):
     """Represents a single heart rate data point."""
-
+    
     timestamp: datetime
     bpm: int
     source: str
@@ -17,39 +15,36 @@ class HeartRateSample:
     @classmethod
     def from_dict(cls, data: dict) -> "HeartRateSample":
         """Create a HeartRateSample from API response dictionary.
-
+        
+        Note: This method is kept for backward compatibility.
+        Pydantic can parse directly from dict using HeartRateSample(**data)
+        
         Args:
             data: Dictionary containing heart rate data
-
+            
         Returns:
             HeartRateSample: Instantiated object
         """
-        return cls(
-            timestamp=datetime.fromisoformat(data["timestamp"]),
-            bpm=data["bpm"],
-            source=data["source"],
-        )
+        return cls(**data)
 
 
-@dataclass
-
-class HeartRateResponse:
+class HeartRateResponse(BaseModel):
     """Represents the full heart rate response."""
-
+    
     data: List[HeartRateSample]
     next_token: Optional[str] = None
 
     @classmethod
     def from_dict(cls, response: dict) -> "HeartRateResponse":
         """Create a HeartRateResponse from API response dictionary.
-
+        
+        Note: This method is kept for backward compatibility.
+        Pydantic can parse directly from dict using HeartRateResponse(**response)
+        
         Args:
             response: Dictionary containing API response
-
+            
         Returns:
             HeartRateResponse: Instantiated object
         """
-        return cls(
-            data=[HeartRateSample.from_dict(item) for item in response.get("data", [])],
-            next_token=response.get("next_token"),
-        )
+        return cls(**response)

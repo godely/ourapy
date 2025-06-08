@@ -1,15 +1,13 @@
 """Models for personal information data."""
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
 
-@dataclass
-
-class PersonalInfo:
+class PersonalInfo(BaseModel):
     """Represents personal information for a user."""
-
+    
     id: str
     email: str
     age: int
@@ -21,23 +19,14 @@ class PersonalInfo:
     @classmethod
     def from_dict(cls, data: dict) -> "PersonalInfo":
         """Create a PersonalInfo object from API response dictionary.
-
+        
+        Note: This method is kept for backward compatibility.
+        Pydantic can parse directly from dict using PersonalInfo(**data)
+        
         Args:
             data: Dictionary containing personal info data
-
+            
         Returns:
             PersonalInfo: Instantiated object
         """
-        birth_date = None
-        if data.get("birth_date"):
-            birth_date = date.fromisoformat(data["birth_date"])
-
-        return cls(
-            id=data["id"],
-            email=data["email"],
-            age=data["age"],
-            weight=data.get("weight"),
-            height=data.get("height"),
-            biological_sex=data.get("biological_sex"),
-            birth_date=birth_date,
-        )
+        return cls(**data)

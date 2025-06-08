@@ -10,12 +10,12 @@ from oura_api_client.models.daily_activity import (
     DailyActivityResponse, DailyActivityModel, ActivityContributors
 )
 from oura_api_client.models.daily_sleep import (
-    DailySleepResponse, DailySleepModel, SleepContributors
+    DailySleepResponse, DailySleepModel, SleepContributors as DailySleepContributors
 )
 from oura_api_client.models.daily_readiness import (
-    DailyReadinessResponse, DailyReadinessModel, ReadinessContributors
+    DailyReadinessResponse, DailyReadinessModel, ReadinessContributors as DailyReadinessContributors
 )
-from oura_api_client.models.sleep import SleepResponse, SleepModel
+from oura_api_client.models.sleep import SleepResponse, SleepModel, SleepContributors, ReadinessContributors
 from oura_api_client.models.session import SessionResponse, SessionModel
 from oura_api_client.models.tag import TagResponse, TagModel
 from oura_api_client.models.workout import WorkoutResponse, WorkoutModel
@@ -357,7 +357,7 @@ class TestDailySleep(unittest.TestCase):
         self.assertIsInstance(daily_sleep_response.data[0], DailySleepModel)
         self.assertIsInstance(
             daily_sleep_response.data[0].contributors,
-            SleepContributors
+            DailySleepContributors
         )
         self.assertEqual(daily_sleep_response.next_token, "next_sleep_token")
 
@@ -443,7 +443,7 @@ class TestDailySleep(unittest.TestCase):
         self.assertIsInstance(daily_sleep_document, DailySleepModel)
         self.assertEqual(daily_sleep_document.id, document_id)
         self.assertIsInstance(
-            daily_sleep_document.contributors, SleepContributors
+            daily_sleep_document.contributors, DailySleepContributors
         )
         self.assertEqual(daily_sleep_document.score, 85)
         self.assertEqual(
@@ -518,7 +518,7 @@ class TestDailyReadiness(unittest.TestCase):
         )
         self.assertIsInstance(
             daily_readiness_response.data[0].contributors,
-            ReadinessContributors
+            DailyReadinessContributors
         )
         self.assertEqual(
             daily_readiness_response.next_token, "next_readiness_token"
@@ -612,7 +612,7 @@ class TestDailyReadiness(unittest.TestCase):
         self.assertEqual(daily_readiness_document.id, document_id)
         self.assertIsInstance(
             daily_readiness_document.contributors,
-            ReadinessContributors
+            DailyReadinessContributors
         )
         self.assertEqual(daily_readiness_document.score, 78)
         self.assertEqual(
