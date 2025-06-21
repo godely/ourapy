@@ -44,8 +44,12 @@ from oura_api_client.models.daily_cardiovascular_age import (
 from oura_api_client.models.vo2_max import (
     Vo2MaxResponse, Vo2MaxModel
 )  # Added Vo2Max models
-import requests
 from requests.exceptions import RequestException
+
+from oura_api_client.exceptions import (
+    OuraNotFoundError, OuraRateLimitError,
+    OuraClientError, OuraConnectionError
+)
 
 class TestOuraClient(unittest.TestCase):
     """Test the OuraClient class."""
@@ -120,6 +124,7 @@ class TestOuraClient(unittest.TestCase):
             "https://api.ouraring.com/v2/usercollection/heartrate",
             headers=self.client.headers,
             params={"start_date": "2024-03-01", "end_date": "2024-03-15"},
+            timeout=30.0,
         )
 
 if __name__ == "__main__":
@@ -224,8 +229,8 @@ class TestDailyActivity(unittest.TestCase):
 
     @patch("requests.get")
     def test_get_daily_activity_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_activity.get_daily_activity_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -291,9 +296,9 @@ class TestDailyActivity(unittest.TestCase):
 
     @patch("requests.get")
     def test_get_daily_activity_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_document_id"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_activity.get_daily_activity_document(document_id=document_id)
 
 class TestDailySleep(unittest.TestCase):
@@ -369,7 +374,7 @@ class TestDailySleep(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_sleep_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -399,13 +404,13 @@ class TestDailySleep(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/daily_sleep",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_sleep_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_sleep.get_daily_sleep_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -459,14 +464,14 @@ class TestDailySleep(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/daily_sleep/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_sleep_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_sleep_document_id"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_sleep.get_daily_sleep_document(document_id=document_id)
 
 class TestDailyReadiness(unittest.TestCase):
@@ -532,7 +537,7 @@ class TestDailyReadiness(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_readiness_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -563,13 +568,13 @@ class TestDailyReadiness(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/daily_readiness",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_readiness_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_readiness.get_daily_readiness_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -626,14 +631,14 @@ class TestDailyReadiness(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/daily_readiness/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_readiness_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_readiness_document_id"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_readiness.get_daily_readiness_document(
                 document_id=document_id
             )
@@ -724,7 +729,7 @@ class TestSleep(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_sleep_doc_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -753,13 +758,13 @@ class TestSleep(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/sleep",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_sleep_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.sleep.get_sleep_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -804,14 +809,14 @@ class TestSleep(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/sleep/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_sleep_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_sleep_doc_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.sleep.get_sleep_document(document_id=document_id)
 
 class TestSession(unittest.TestCase):
@@ -870,7 +875,7 @@ class TestSession(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_session_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -901,13 +906,13 @@ class TestSession(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/session",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_session_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.session.get_session_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -949,14 +954,14 @@ class TestSession(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/session/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_session_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_session_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.session.get_session_document(document_id=document_id)
 
 class TestTag(unittest.TestCase):
@@ -1010,7 +1015,7 @@ class TestTag(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_tag_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1040,13 +1045,13 @@ class TestTag(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/tag",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_tag_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.tag.get_tag_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -1081,14 +1086,14 @@ class TestTag(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/tag/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_tag_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_tag_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.tag.get_tag_document(document_id=document_id)
 
 class TestWorkout(unittest.TestCase):
@@ -1150,7 +1155,7 @@ class TestWorkout(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_workout_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1183,13 +1188,13 @@ class TestWorkout(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/workout",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_workout_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.workout.get_workout_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -1233,14 +1238,14 @@ class TestWorkout(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/workout/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_workout_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_workout_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.workout.get_workout_document(document_id=document_id)
 
 class TestEnhancedTag(unittest.TestCase):
@@ -1309,7 +1314,7 @@ class TestEnhancedTag(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_enhanced_tag_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1339,13 +1344,13 @@ class TestEnhancedTag(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/enhanced_tag",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_enhanced_tag_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.enhanced_tag.get_enhanced_tag_documents(
                 start_date="2024-03-01", end_date="2024-03-31"
             )
@@ -1387,14 +1392,14 @@ class TestEnhancedTag(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/enhanced_tag/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_enhanced_tag_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_enhanced_tag_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.enhanced_tag.get_enhanced_tag_document(document_id=document_id)
 
 class TestDailySpo2(unittest.TestCase):
@@ -1459,7 +1464,7 @@ class TestDailySpo2(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_spo2_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1489,13 +1494,13 @@ class TestDailySpo2(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/daily_spo2",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_spo2_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_spo2.get_daily_spo2_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -1533,14 +1538,14 @@ class TestDailySpo2(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/daily_spo2/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_spo2_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_spo2_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.daily_spo2.get_daily_spo2_document(document_id=document_id)
 
 class TestSleepTime(unittest.TestCase):
@@ -1627,7 +1632,7 @@ class TestSleepTime(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_sleep_time_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1657,13 +1662,13 @@ class TestSleepTime(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/sleep_time",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_sleep_time_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.sleep_time.get_sleep_time_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -1716,7 +1721,7 @@ class TestSleepTime(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/sleep_time/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1726,7 +1731,7 @@ class TestSleepTime(unittest.TestCase):
         # raise as an HTTPError (a subclass of RequestException).
         mock_get.side_effect = RequestException("API error or Not Found")
         document_id = "test_st_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.sleep_time.get_sleep_time_document(document_id=document_id)
 
 class TestRestModePeriod(unittest.TestCase):
@@ -1790,7 +1795,7 @@ class TestRestModePeriod(unittest.TestCase):
                 "end_date": end_date_str,
                 "next_token": "test_rmp_token",
             },
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1820,13 +1825,13 @@ class TestRestModePeriod(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/rest_mode_period",
             headers=self.client.headers,
             params={"start_date": start_date_str, "end_date": end_date_str},
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_rest_mode_period_documents_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
-        with self.assertRaises(RequestException):
+        mock_get.side_effect = OuraConnectionError("API error")
+        with self.assertRaises(OuraConnectionError):
             self.client.rest_mode_period.get_rest_mode_period_documents(
                 start_date="2024-03-10", end_date="2024-03-11"
             )
@@ -1868,14 +1873,14 @@ class TestRestModePeriod(unittest.TestCase):
             f"{self.client.BASE_URL}/usercollection/rest_mode_period/{document_id}",
             headers=self.client.headers,
             params=None,
-
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_rest_mode_period_document_error(self, mock_get):
-        mock_get.side_effect = RequestException("API error")
+        mock_get.side_effect = OuraConnectionError("API error")
         document_id = "test_rmp_single_error"
-        with self.assertRaises(RequestException):
+        with self.assertRaises(OuraConnectionError):
             self.client.rest_mode_period.get_rest_mode_period_document(
                 document_id=document_id
             )
@@ -1900,6 +1905,7 @@ class TestDailyStress(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1917,6 +1923,7 @@ class TestDailyStress(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"start_date": "2024-01-01"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1932,6 +1939,7 @@ class TestDailyStress(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"end_date": "2024-01-31"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1949,6 +1957,7 @@ class TestDailyStress(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"start_date": "2024-01-01", "end_date": "2024-01-31"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -1966,6 +1975,7 @@ class TestDailyStress(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"next_token": "some_token"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2004,36 +2014,33 @@ class TestDailyStress(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_stress",
             headers=self.client.headers,
             params={"start_date": "2024-03-15"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_stress_documents_api_error_400(self, mock_get):
+        # Mock a 400 error response
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("400 Client Error")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 400
+        mock_response.reason = "Client Error"
+        mock_response.json.return_value = {"error": "400 Client Error"}
         mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
-            self.client.daily_stress.get_daily_stress_documents()
-
-    @patch("requests.get")
-    def test_get_daily_stress_documents_api_error_401(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("401 Client Error")
-        )
-        mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
+        
+        with self.assertRaises(OuraClientError):
             self.client.daily_stress.get_daily_stress_documents()
 
     @patch("requests.get")
     def test_get_daily_stress_documents_api_error_429(self, mock_get):
+        # Mock a 429 error response
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("429 Client Error")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 429
+        mock_response.reason = "Too Many Requests"
+        mock_response.json.return_value = {"error": "429 Client Error"}
         mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
+        
+        with self.assertRaises(OuraRateLimitError):
             self.client.daily_stress.get_daily_stress_documents()
 
     @patch("requests.get")
@@ -2064,18 +2071,21 @@ class TestDailyStress(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_stress/{document_id}",
             headers=self.client.headers,
             params=None,  # No params for single document GET
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_stress_document_not_found_404(self, mock_get):
         document_id = "non_existent_id"
+        # Mock a 404 error response
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("404 Client Error: Not Found")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 404
+        mock_response.reason = "Not Found"
+        mock_response.json.return_value = {"error": "404 Client Error: Not Found"}
         mock_get.return_value = mock_response
 
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(OuraNotFoundError):
             self.client.daily_stress.get_daily_stress_document(document_id)
 
 class TestDailyResilience(unittest.TestCase):
@@ -2098,6 +2108,7 @@ class TestDailyResilience(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2115,6 +2126,7 @@ class TestDailyResilience(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"start_date": "2024-02-01"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2132,6 +2144,7 @@ class TestDailyResilience(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"end_date": "2024-02-28"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2149,6 +2162,7 @@ class TestDailyResilience(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"start_date": "2024-02-01", "end_date": "2024-02-28"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2166,6 +2180,7 @@ class TestDailyResilience(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"next_token": "res_token"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2210,36 +2225,17 @@ class TestDailyResilience(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_resilience",
             headers=self.client.headers,
             params={"start_date": "2024-03-18"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_resilience_documents_api_error_400(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("400 Client Error")
+            OuraClientError("400 Client Error")
         )
         mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
-            self.client.daily_resilience.get_daily_resilience_documents()
-
-    @patch("requests.get")
-    def test_get_daily_resilience_documents_api_error_401(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("401 Client Error")
-        )
-        mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
-            self.client.daily_resilience.get_daily_resilience_documents()
-
-    @patch("requests.get")
-    def test_get_daily_resilience_documents_api_error_429(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("429 Client Error")
-        )
-        mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(OuraClientError):
             self.client.daily_resilience.get_daily_resilience_documents()
 
     @patch("requests.get")
@@ -2277,6 +2273,7 @@ class TestDailyResilience(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_resilience/{document_id}",
             headers=self.client.headers,
             params=None,
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2284,11 +2281,11 @@ class TestDailyResilience(unittest.TestCase):
         document_id = "non_existent_res_id"
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("404 Client Error: Not Found")
+            OuraNotFoundError("404 Client Error: Not Found")
         )
         mock_get.return_value = mock_response
 
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(OuraNotFoundError):
             self.client.daily_resilience.get_daily_resilience_document(
                 document_id
             )
@@ -2315,6 +2312,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2332,6 +2330,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"start_date": "2024-03-01"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2349,6 +2348,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"end_date": "2024-03-31"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2366,6 +2366,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"start_date": "2024-03-01", "end_date": "2024-03-31"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2383,6 +2384,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"next_token": "cva_token"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2422,36 +2424,17 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_cardiovascular_age",
             headers=self.client.headers,
             params={"start_date": "2024-03-20"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_daily_cardiovascular_age_documents_api_error_400(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("400 Client Error")
+            OuraClientError("400 Client Error")
         )
         mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
-            self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
-
-    @patch("requests.get")
-    def test_get_daily_cardiovascular_age_documents_api_error_401(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("401 Client Error")
-        )
-        mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
-            self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
-
-    @patch("requests.get")
-    def test_get_daily_cardiovascular_age_documents_api_error_429(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("429 Client Error")
-        )
-        mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(OuraClientError):
             self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
 
     @patch("requests.get")
@@ -2481,6 +2464,7 @@ class TestDailyCardiovascularAge(unittest.TestCase):
             f"{self.base_url}/usercollection/daily_cardiovascular_age/{document_id}",
             headers=self.client.headers,
             params=None,
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2488,11 +2472,11 @@ class TestDailyCardiovascularAge(unittest.TestCase):
         document_id = "non_existent_cva_id"
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("404 Client Error: Not Found")
+            OuraNotFoundError("404 Client Error: Not Found")
         )
         mock_get.return_value = mock_response
 
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(OuraNotFoundError):
             self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_document(
                 document_id
             )
@@ -2518,6 +2502,7 @@ class TestVo2Max(unittest.TestCase):
             f"{self.base_url}{self.correct_path_segment}",
             headers=self.client.headers,
             params={},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2533,6 +2518,7 @@ class TestVo2Max(unittest.TestCase):
             f"{self.base_url}{self.correct_path_segment}",
             headers=self.client.headers,
             params={"start_date": "2024-04-01"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2548,6 +2534,7 @@ class TestVo2Max(unittest.TestCase):
             f"{self.base_url}{self.correct_path_segment}",
             headers=self.client.headers,
             params={"end_date": "2024-04-30"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2565,6 +2552,7 @@ class TestVo2Max(unittest.TestCase):
             f"{self.base_url}{self.correct_path_segment}",
             headers=self.client.headers,
             params={"start_date": "2024-04-01", "end_date": "2024-04-30"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2580,6 +2568,7 @@ class TestVo2Max(unittest.TestCase):
             f"{self.base_url}{self.correct_path_segment}",
             headers=self.client.headers,
             params={"next_token": "vo2_token"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2616,36 +2605,17 @@ class TestVo2Max(unittest.TestCase):
             f"{self.base_url}{self.correct_path_segment}",
             headers=self.client.headers,
             params={"start_date": "2024-04-10"},
+            timeout=30.0,
         )
 
     @patch("requests.get")
     def test_get_vo2_max_documents_api_error_400(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("400 Client Error")
+            OuraClientError("400 Client Error")
         )
         mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
-            self.client.vo2_max.get_vo2_max_documents()
-
-    @patch("requests.get")
-    def test_get_vo2_max_documents_api_error_401(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("401 Client Error")
-        )
-        mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
-            self.client.vo2_max.get_vo2_max_documents()
-
-    @patch("requests.get")
-    def test_get_vo2_max_documents_api_error_429(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("429 Client Error")
-        )
-        mock_get.return_value = mock_response
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(OuraClientError):
             self.client.vo2_max.get_vo2_max_documents()
 
     @patch("requests.get")
@@ -2676,6 +2646,7 @@ class TestVo2Max(unittest.TestCase):
             f"{self.base_url}{self.correct_path_segment}/{document_id}",
             headers=self.client.headers,
             params=None,
+            timeout=30.0,
         )
 
     @patch("requests.get")
@@ -2683,9 +2654,9 @@ class TestVo2Max(unittest.TestCase):
         document_id = "non_existent_vo2_id"
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = (
-            requests.exceptions.HTTPError("404 Client Error: Not Found")
+            OuraNotFoundError("404 Client Error: Not Found")
         )
         mock_get.return_value = mock_response
 
-        with self.assertRaises(requests.exceptions.HTTPError):
+        with self.assertRaises(OuraNotFoundError):
             self.client.vo2_max.get_vo2_max_document(document_id)
