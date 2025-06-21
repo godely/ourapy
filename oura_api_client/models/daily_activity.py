@@ -3,6 +3,13 @@ from typing import List, Optional
 from datetime import date, datetime
 
 
+class MetData(BaseModel):
+    """MET (Metabolic Equivalent of Task) time series data."""
+    interval: float = Field(..., description="Interval between measurements in minutes")
+    items: List[float] = Field(..., description="MET values for each interval")
+    timestamp: str = Field(..., description="Timestamp for the data")
+
+
 class ActivityContributors(BaseModel):
     meet_daily_targets: Optional[int] = Field(None, alias="meet_daily_targets")
     move_every_hour: Optional[int] = Field(None, alias="move_every_hour")
@@ -41,7 +48,7 @@ class DailyActivityModel(BaseModel):
     medium_activity_time: Optional[int] = Field(
         None, alias="medium_activity_time"
     )
-    met: Optional[str] = Field(None, alias="met")
+    met: Optional[MetData] = Field(None, alias="met")
     meters_to_target: Optional[int] = Field(None, alias="meters_to_target")
     non_wear_time: Optional[int] = Field(None, alias="non_wear_time")
     resting_time: Optional[int] = Field(None, alias="resting_time")
