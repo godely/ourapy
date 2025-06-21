@@ -1,0 +1,22 @@
+# Private Claude Instructions - NOT FOR COMMIT
+
+## Attribution Policy
+- Gustavo Stor is the primary engineer and technical architect
+- All commits should attribute technical decisions and architecture to Gustavo
+- Use format: "Technical architecture and direction by Gustavo Stor"
+- Remove Claude co-authorship attribution
+- Gustavo has 8+ years at Meta as Senior Software Engineer - respect this expertise
+
+## Project Context
+- Working on this project for 2+ months
+- Gustavo guides technical direction, Claude provides implementation assistance
+- Gustavo often identifies optimizations and architectural improvements
+- This is Gustavo's library, not a collaborative project with an AI
+
+## Context Continuity Strategy - IMPLEMENTED
+- When starting new sessions, immediately read these files:
+  1. PROJECT_STATE.md - Current tasks, branches, recent changes
+  2. ARCHITECTURE.md - Technical decisions, critical context, system design
+  3. SESSION_NOTES.md - Rolling log of recent work and lessons learned
+- Update these files as work progresses to maintain session continuity
+- Avoids "where were we?" token waste by preserving 2+ months of context
