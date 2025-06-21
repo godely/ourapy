@@ -133,4 +133,10 @@ dmypy.json
 .DS_Store
 
 # Project specific files
-heart_rate_data.json 
+heart_rate_data.json
+
+# Private Claude instructions and context
+.claude_private
+PROJECT_STATE.md
+ARCHITECTURE.md
+SESSION_NOTES.md

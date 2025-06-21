@@ -20,6 +20,22 @@
 - During code reviews when we identify improvement opportunities
 - When adopting new state-of-the-art practices
 
+### Context File Strategy
+**Session Startup Protocol**: When detecting context loss (new session, after auto-compact, or when asked about something I should know but don't), immediately read all context files in one batch:
+1. PROJECT_STATE.md - Current status and active work
+2. ARCHITECTURE.md - Technical decisions and critical context  
+3. SESSION_NOTES.md - Recent development history
+
+**During Session**: Keep these files updated as work progresses, but don't re-read unless detecting another context loss event (WHICH SHOULD BE RARE).
+
+**Mid-Session Re-reading Threshold**: Only re-read context files when ALL conditions met:
+- Confidence I should know the answer: >85%
+- Confidence in my actual answer: <25%
+- Messages since last context read: >20
+- Alternative: Ask explicitly "Should I re-read context files?" when uncertain
+
+**Optimization**: Read all relevant context files at once rather than piecemeal to minimize token overhead.
+
 ## Code Style
 - Use 4 spaces for indentation (Python PEP 8)
 - Always run flake8 before considering any task complete
@@ -91,4 +107,6 @@
 - Added parallel testing with pytest-xdist for faster local development
 - Added comprehensive debugging section with systematic test failure approaches
 - Updated project commands to use parallel testing by default
+- Added context file strategy with threshold-based re-reading to minimize token waste
+- Implemented session continuity system with PROJECT_STATE.md, ARCHITECTURE.md, SESSION_NOTES.md
 - Initial creation with sections for code style, testing, error handling, git workflow, documentation, commands, API design, and common patterns
