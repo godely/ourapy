@@ -2231,9 +2231,10 @@ class TestDailyResilience(unittest.TestCase):
     @patch("requests.get")
     def test_get_daily_resilience_documents_api_error_400(self, mock_get):
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            OuraClientError("400 Client Error")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 400
+        mock_response.reason = "Bad Request"
+        mock_response.json.return_value = {"error": "400 Client Error"}
         mock_get.return_value = mock_response
         with self.assertRaises(OuraClientError):
             self.client.daily_resilience.get_daily_resilience_documents()
@@ -2280,9 +2281,10 @@ class TestDailyResilience(unittest.TestCase):
     def test_get_daily_resilience_document_not_found_404(self, mock_get):
         document_id = "non_existent_res_id"
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            OuraNotFoundError("404 Client Error: Not Found")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 404
+        mock_response.reason = "Not Found"
+        mock_response.json.return_value = {"error": "404 Client Error: Not Found"}
         mock_get.return_value = mock_response
 
         with self.assertRaises(OuraNotFoundError):
@@ -2430,9 +2432,10 @@ class TestDailyCardiovascularAge(unittest.TestCase):
     @patch("requests.get")
     def test_get_daily_cardiovascular_age_documents_api_error_400(self, mock_get):
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            OuraClientError("400 Client Error")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 400
+        mock_response.reason = "Bad Request"
+        mock_response.json.return_value = {"error": "400 Client Error"}
         mock_get.return_value = mock_response
         with self.assertRaises(OuraClientError):
             self.client.daily_cardiovascular_age.get_daily_cardiovascular_age_documents()
@@ -2471,9 +2474,10 @@ class TestDailyCardiovascularAge(unittest.TestCase):
     def test_get_daily_cardiovascular_age_document_not_found_404(self, mock_get):
         document_id = "non_existent_cva_id"
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            OuraNotFoundError("404 Client Error: Not Found")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 404
+        mock_response.reason = "Not Found"
+        mock_response.json.return_value = {"error": "404 Client Error: Not Found"}
         mock_get.return_value = mock_response
 
         with self.assertRaises(OuraNotFoundError):
@@ -2611,9 +2615,10 @@ class TestVo2Max(unittest.TestCase):
     @patch("requests.get")
     def test_get_vo2_max_documents_api_error_400(self, mock_get):
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            OuraClientError("400 Client Error")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 400
+        mock_response.reason = "Bad Request"
+        mock_response.json.return_value = {"error": "400 Client Error"}
         mock_get.return_value = mock_response
         with self.assertRaises(OuraClientError):
             self.client.vo2_max.get_vo2_max_documents()
@@ -2653,9 +2658,10 @@ class TestVo2Max(unittest.TestCase):
     def test_get_vo2_max_document_not_found_404(self, mock_get):
         document_id = "non_existent_vo2_id"
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = (
-            OuraNotFoundError("404 Client Error: Not Found")
-        )
+        mock_response.ok = False
+        mock_response.status_code = 404
+        mock_response.reason = "Not Found"
+        mock_response.json.return_value = {"error": "404 Client Error: Not Found"}
         mock_get.return_value = mock_response
 
         with self.assertRaises(OuraNotFoundError):

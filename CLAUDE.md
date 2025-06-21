@@ -49,7 +49,9 @@
 
 ## Project-Specific Commands
 - Lint: `flake8 oura_api_client/ tests/`
-- Test: `python -m pytest tests/ -v`
+- Test (parallel): `python -m pytest tests/ -n auto -v`
+- Test (sequential): `python -m pytest tests/ -v`
+- Test (specific): `python -m pytest tests/test_specific.py::TestClass::test_method -v`
 - Type check: `mypy oura_api_client/` (if available)
 
 ## API Design Principles
@@ -62,7 +64,31 @@
 - Use the `build_query_params` utility for consistent parameter handling
 - Follow the existing endpoint module pattern for new features
 
+## Debugging Test Failures
+**IMPORTANT**: Use systematic approaches when tests fail, especially in CI environments.
+
+### Local Debugging Strategy
+1. **Use parallel execution**: `pytest -n auto` for faster feedback
+2. **Target specific failures**: `pytest -x --tb=short` (stop on first failure)
+3. **Re-run only failed tests**: `pytest --lf` (last failed)
+4. **Isolate by class/method**: `pytest tests/test_file.py::TestClass::test_method`
+5. **Use short tracebacks**: `--tb=short` or `--tb=line` for cleaner output
+
+### CI Failure Investigation
+- **Timeouts ≠ No failures**: Test timeouts can mask actual test failures
+- **Ask for specific error output** when remote logs aren't accessible
+- **Don't assume environmental issues** without evidence
+- **Test locally first** with the same conditions when possible
+
+### Common Patterns to Watch For
+- Mock incompatibilities after refactoring (e.g., `raise_for_status` vs `response.ok`)
+- Import errors from new dependencies
+- Pydantic model validation failures from API changes
+
 ## Change Log
 ### 2025-06-21
 - Added Meta Instructions section to ensure continuous improvement of guidelines
+- Added parallel testing with pytest-xdist for faster local development
+- Added comprehensive debugging section with systematic test failure approaches
+- Updated project commands to use parallel testing by default
 - Initial creation with sections for code style, testing, error handling, git workflow, documentation, commands, API design, and common patterns
