@@ -1,6 +1,70 @@
 import json
 import logging
 
+
+def _parse_method_details(method_details):
+    """Parse details for a single HTTP method."""
+    method_data = {
+        "tags": method_details.get("tags", []),
+        "summary": method_details.get("summary"),
+        "operationId": method_details.get("operationId"),
+        "parameters": [],
+        "responses": {}
+    }
+    
+    # Parse parameters
+    if "parameters" in method_details and isinstance(method_details["parameters"], list):
+        for param in method_details["parameters"]:
+            method_data["parameters"].append({
+                "name": param.get("name"),
+                "in": param.get("in"),
+                "required": param.get("required"),
+                "schema": param.get("schema")
+            })
+    
+    # Parse responses
+    if "responses" in method_details and isinstance(method_details["responses"], dict):
+        for status_code, response_details in method_details["responses"].items():
+            method_data["responses"][status_code] = {
+                "description": response_details.get("description"),
+                "content": response_details.get("content", {}).get("application/json", {}).get("schema")
+            }
+    
+    return method_data
+
+
+def _parse_paths(spec):
+    """Parse paths section of OpenAPI spec."""
+    paths_data = {}
+    
+    if "paths" not in spec or not isinstance(spec["paths"], dict):
+        print("Warning: 'paths' attribute not found or is not a dictionary in the OpenAPI spec.")
+        return paths_data
+    
+    for path_string, path_item in spec["paths"].items():
+        paths_data[path_string] = {}
+        for method, method_details in path_item.items():
+            if method.upper() in ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]:
+                paths_data[path_string][method.upper()] = _parse_method_details(method_details)
+    
+    return paths_data
+
+
+def _parse_schemas(spec):
+    """Parse component schemas section of OpenAPI spec."""
+    components_schemas_data = {}
+    
+    if ("components" in spec and
+            "schemas" in spec["components"] and
+            isinstance(spec["components"]["schemas"], dict)):
+        for schema_name, schema_details in spec["components"]["schemas"].items():
+            components_schemas_data[schema_name] = schema_details
+    else:
+        print("Warning: 'components.schemas' attribute not found or is not a dictionary in the OpenAPI spec.")
+    
+    return components_schemas_data
+
+
 def parse_openapi_spec(spec_content):
     """
     Parses the OpenAPI specification and extracts relevant information.
@@ -19,44 +83,8 @@ def parse_openapi_spec(spec_content):
         logging.error(f"Error decoding JSON: {e}")
         raise ValueError(f"Failed to parse OpenAPI spec: {e}")
 
-    paths_data = {}
-    if "paths" in spec and isinstance(spec["paths"], dict):
-        for path_string, path_item in spec["paths"].items():
-            paths_data[path_string] = {}
-            for method, method_details in path_item.items():
-                if method.upper() in ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]:
-                    paths_data[path_string][method.upper()] = {
-                        "tags": method_details.get("tags", []),
-                        "summary": method_details.get("summary"),
-                        "operationId": method_details.get("operationId"),
-                        "parameters": [],
-                        "responses": {}
-                    }
-
-                    if "parameters" in method_details and isinstance(method_details["parameters"], list):
-                        for param in method_details["parameters"]:
-                            paths_data[path_string][method.upper()]["parameters"].append({
-                                "name": param.get("name"),
-                                "in": param.get("in"),
-                                "required": param.get("required"),
-                                "schema": param.get("schema")
-                            })
-
-                    if "responses" in method_details and isinstance(method_details["responses"], dict):
-                        for status_code, response_details in method_details["responses"].items():
-                            paths_data[path_string][method.upper()]["responses"][status_code] = {
-                                "description": response_details.get("description"),
-                                "content": response_details.get("content", {}).get("application/json", {}).get("schema")
-                            }
-    else:
-        print("Warning: 'paths' attribute not found or is not a dictionary in the OpenAPI spec.")
-
-    components_schemas_data = {}
-    if "components" in spec and "schemas" in spec["components"] and isinstance(spec["components"]["schemas"], dict):
-        for schema_name, schema_details in spec["components"]["schemas"].items():
-            components_schemas_data[schema_name] = schema_details
-    else:
-        print("Warning: 'components.schemas' attribute not found or is not a dictionary in the OpenAPI spec.")
+    paths_data = _parse_paths(spec)
+    components_schemas_data = _parse_schemas(spec)
 
     return paths_data, components_schemas_data
 

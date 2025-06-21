@@ -44,7 +44,7 @@ from oura_api_client.models.daily_cardiovascular_age import (
 from oura_api_client.models.vo2_max import (
     Vo2MaxResponse, Vo2MaxModel
 )  # Added Vo2Max models
-from requests.exceptions import RequestException
+import requests
 
 from oura_api_client.exceptions import (
     OuraNotFoundError, OuraRateLimitError,
@@ -1729,7 +1729,7 @@ class TestSleepTime(unittest.TestCase):
         # As per the implementation note, this endpoint might not exist.
         # If it doesn't, the API would return a 404, which _make_request would
         # raise as an HTTPError (a subclass of RequestException).
-        mock_get.side_effect = RequestException("API error or Not Found")
+        mock_get.side_effect = requests.exceptions.ConnectionError("API error or Not Found")
         document_id = "test_st_single_error"
         with self.assertRaises(OuraConnectionError):
             self.client.sleep_time.get_sleep_time_document(document_id=document_id)
