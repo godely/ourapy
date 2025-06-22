@@ -25,6 +25,7 @@
 1. PROJECT_STATE.md - Current status and active work
 2. ARCHITECTURE.md - Technical decisions and critical context  
 3. SESSION_NOTES.md - Recent development history
+4. WORKSPACE_NOTES.md - Project workspace notes and guidelines
 
 **During Session**: Keep these files updated as work progresses, but don't re-read unless detecting another context loss event (WHICH SHOULD BE RARE).
 
