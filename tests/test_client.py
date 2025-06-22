@@ -259,7 +259,11 @@ class TestDailyActivity(unittest.TestCase):
             "low_activity_time": 1200,
             "medium_activity_met_minutes": 90,
             "medium_activity_time": 1800,
-            "met": "test_met",
+            "met": {
+                "interval": 5,
+                "items": [1.5, 2.0, 1.8, 2.2],
+                "timestamp": "2024-03-10T12:00:00+00:00"
+            },
             "meters_to_target": 1000,
             "non_wear_time": 300,
             "resting_time": 3600,
