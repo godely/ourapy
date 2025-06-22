@@ -135,11 +135,11 @@ dmypy.json
 # Project specific files
 heart_rate_data.json
 
-# Private Claude instructions and context
-.claude_private
+# Workspace and session context files
 PROJECT_STATE.md
 ARCHITECTURE.md
 SESSION_NOTES.md
+WORKSPACE_NOTES.md
 
 # API testing files (contain sensitive tokens)
 test_api_live.py
