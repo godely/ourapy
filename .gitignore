@@ -140,3 +140,8 @@ heart_rate_data.json
 PROJECT_STATE.md
 ARCHITECTURE.md
 SESSION_NOTES.md
+
+# API testing files (contain sensitive tokens)
+test_api_live.py
+*_live_test.py
+*.token
