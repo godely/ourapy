@@ -14,7 +14,7 @@ from oura_api_client.exceptions import (
     OuraClientError,
     OuraConnectionError,
     OuraTimeoutError,
-    create_api_error
+    create_api_error,
 )
 from oura_api_client.utils import RetryConfig, exponential_backoff, should_retry
 
@@ -33,10 +33,7 @@ class TestExceptions(unittest.TestCase):
     def test_oura_rate_limit_error(self):
         """Test OuraRateLimitError with retry_after."""
         error = OuraRateLimitError(
-            "Rate limit exceeded",
-            status_code=429,
-            endpoint="/test",
-            retry_after=60
+            "Rate limit exceeded", status_code=429, endpoint="/test", retry_after=60
         )
         self.assertEqual(error.retry_after, 60)
         self.assertEqual(error.status_code, 429)
@@ -47,7 +44,7 @@ class TestExceptions(unittest.TestCase):
         mock_response.status_code = 401
         mock_response.reason = "Unauthorized"
         mock_response.json.return_value = {"error": "Invalid token"}
-        
+
         error = create_api_error(mock_response, "/test")
         self.assertIsInstance(error, OuraAuthenticationError)
         self.assertEqual(error.message, "Invalid token")
@@ -60,7 +57,7 @@ class TestExceptions(unittest.TestCase):
         mock_response.status_code = 500
         mock_response.reason = "Internal Server Error"
         mock_response.json.side_effect = ValueError("No JSON")
-        
+
         error = create_api_error(mock_response, "/test")
         self.assertIsInstance(error, OuraServerError)
         self.assertEqual(error.message, "HTTP 500: Internal Server Error")
@@ -72,7 +69,7 @@ class TestExceptions(unittest.TestCase):
         mock_response.reason = "Too Many Requests"
         mock_response.headers = {"Retry-After": "120"}
         mock_response.json.return_value = {"error": "Rate limit exceeded"}
-        
+
         error = create_api_error(mock_response, "/test")
         self.assertIsInstance(error, OuraRateLimitError)
         self.assertEqual(error.retry_after, 120)
@@ -90,14 +87,14 @@ class TestExceptions(unittest.TestCase):
             (502, OuraServerError),
             (503, OuraServerError),
         ]
-        
+
         for status_code, expected_type in test_cases:
             mock_response = MagicMock()
             mock_response.status_code = status_code
             mock_response.reason = f"Status {status_code}"
             mock_response.json.side_effect = ValueError()
             mock_response.headers = {}
-            
+
             error = create_api_error(mock_response)
             self.assertIsInstance(error, expected_type)
 
@@ -112,17 +109,16 @@ class TestRetryLogic(unittest.TestCase):
         self.assertEqual(exponential_backoff(1, base_delay=1.0, jitter=False), 2.0)
         self.assertEqual(exponential_backoff(2, base_delay=1.0, jitter=False), 4.0)
         self.assertEqual(exponential_backoff(3, base_delay=1.0, jitter=False), 8.0)
-        
+
         # Test max delay
         self.assertEqual(
-            exponential_backoff(10, base_delay=1.0, max_delay=5.0, jitter=False),
-            5.0
+            exponential_backoff(10, base_delay=1.0, max_delay=5.0, jitter=False), 5.0
         )
-        
+
         # Test with jitter (should be within ±25% of base value)
         for attempt in range(5):
             delay = exponential_backoff(attempt, base_delay=1.0, jitter=True)
-            expected = 1.0 * (2 ** attempt)
+            expected = 1.0 * (2**attempt)
             self.assertGreaterEqual(delay, expected * 0.75)
             self.assertLessEqual(delay, expected * 1.25)
 
@@ -132,7 +128,7 @@ class TestRetryLogic(unittest.TestCase):
         error = OuraServerError("Server error")
         self.assertFalse(should_retry(error, attempt=3, max_retries=3))
         self.assertTrue(should_retry(error, attempt=2, max_retries=3))
-        
+
         # Test retryable errors
         retryable_errors = [
             OuraServerError("Server error"),
@@ -140,10 +136,10 @@ class TestRetryLogic(unittest.TestCase):
             OuraTimeoutError("Request timed out"),
             OuraRateLimitError("Rate limited", retry_after=60),
         ]
-        
+
         for error in retryable_errors:
             self.assertTrue(should_retry(error, attempt=0, max_retries=3))
-        
+
         # Test non-retryable errors
         non_retryable_errors = [
             OuraAuthenticationError("Invalid token"),
@@ -151,10 +147,10 @@ class TestRetryLogic(unittest.TestCase):
             OuraNotFoundError("Not found"),
             OuraClientError("Bad request"),
         ]
-        
+
         for error in non_retryable_errors:
             self.assertFalse(should_retry(error, attempt=0, max_retries=3))
-        
+
         # Test rate limit with large retry_after
         error = OuraRateLimitError("Rate limited", retry_after=600)
         self.assertFalse(should_retry(error, attempt=0, max_retries=3))
@@ -174,7 +170,7 @@ class TestOuraClientErrorHandling(unittest.TestCase):
         mock_response.ok = True
         mock_response.json.return_value = {"data": "test"}
         mock_get.return_value = mock_response
-        
+
         result = self.client._make_request("/test")
         self.assertEqual(result, {"data": "test"})
         mock_get.assert_called_once()
@@ -188,10 +184,10 @@ class TestOuraClientErrorHandling(unittest.TestCase):
         mock_response.reason = "Not Found"
         mock_response.json.return_value = {"error": "Resource not found"}
         mock_get.return_value = mock_response
-        
+
         with self.assertRaises(OuraNotFoundError) as cm:
             self.client._make_request("/test")
-        
+
         self.assertEqual(cm.exception.message, "Resource not found")
         self.assertEqual(cm.exception.status_code, 404)
         self.assertEqual(cm.exception.endpoint, "/test")
@@ -200,10 +196,10 @@ class TestOuraClientErrorHandling(unittest.TestCase):
     def test_make_request_timeout(self, mock_get):
         """Test request timeout."""
         mock_get.side_effect = requests.exceptions.Timeout("Timeout")
-        
+
         with self.assertRaises(OuraTimeoutError) as cm:
             self.client._make_request("/test")
-        
+
         self.assertIn("timed out", cm.exception.message)
         self.assertEqual(cm.exception.endpoint, "/test")
 
@@ -211,10 +207,10 @@ class TestOuraClientErrorHandling(unittest.TestCase):
     def test_make_request_connection_error(self, mock_get):
         """Test connection error."""
         mock_get.side_effect = requests.exceptions.ConnectionError("Connection failed")
-        
+
         with self.assertRaises(OuraConnectionError) as cm:
             self.client._make_request("/test")
-        
+
         self.assertIn("Failed to connect", cm.exception.message)
         self.assertEqual(cm.exception.endpoint, "/test")
 
@@ -227,20 +223,18 @@ class TestOuraClientErrorHandling(unittest.TestCase):
         mock_response_error.status_code = 500
         mock_response_error.reason = "Internal Server Error"
         mock_response_error.json.return_value = {}
-        
+
         mock_response_success = MagicMock()
         mock_response_success.ok = True
         mock_response_success.json.return_value = {"data": "success"}
-        
+
         mock_get.side_effect = [mock_response_error, mock_response_success]
-        
+
         # Enable retry
         self.client.retry_config = RetryConfig(
-            max_retries=3,
-            base_delay=0.01,  # Short delay for testing
-            jitter=False
+            max_retries=3, base_delay=0.01, jitter=False  # Short delay for testing
         )
-        
+
         result = self.client._make_request("/test")
         self.assertEqual(result, {"data": "success"})
         self.assertEqual(mock_get.call_count, 2)
@@ -255,17 +249,15 @@ class TestOuraClientErrorHandling(unittest.TestCase):
         mock_response.reason = "Internal Server Error"
         mock_response.json.return_value = {"error": "Server error"}
         mock_get.return_value = mock_response
-        
+
         # Enable retry with limited attempts
         self.client.retry_config = RetryConfig(
-            max_retries=2,
-            base_delay=0.01,
-            jitter=False
+            max_retries=2, base_delay=0.01, jitter=False
         )
-        
+
         with self.assertRaises(OuraServerError) as cm:
             self.client._make_request("/test")
-        
+
         self.assertEqual(cm.exception.message, "Server error")
         self.assertEqual(mock_get.call_count, 3)  # Initial + 2 retries
 
@@ -279,18 +271,18 @@ class TestOuraClientErrorHandling(unittest.TestCase):
         mock_response_rate_limit.reason = "Too Many Requests"
         mock_response_rate_limit.headers = {"Retry-After": "2"}
         mock_response_rate_limit.json.return_value = {"error": "Rate limited"}
-        
+
         mock_response_success = MagicMock()
         mock_response_success.ok = True
         mock_response_success.json.return_value = {"data": "success"}
-        
+
         mock_get.side_effect = [mock_response_rate_limit, mock_response_success]
-        
+
         self.client.retry_config = RetryConfig(max_retries=3)
-        
+
         result = self.client._make_request("/test")
         self.assertEqual(result, {"data": "success"})
-        
+
         # Should have slept for the Retry-After duration
         mock_sleep.assert_called_once_with(2)
 
@@ -303,12 +295,12 @@ class TestOuraClientErrorHandling(unittest.TestCase):
         mock_response.reason = "Bad Request"
         mock_response.json.return_value = {"error": "Invalid parameters"}
         mock_get.return_value = mock_response
-        
+
         self.client.retry_config = RetryConfig(max_retries=3)
-        
+
         with self.assertRaises(OuraClientError) as cm:
             self.client._make_request("/test")
-        
+
         self.assertEqual(cm.exception.message, "Invalid parameters")
         self.assertEqual(mock_get.call_count, 1)  # No retries
 
@@ -319,7 +311,7 @@ class TestOuraClientErrorHandling(unittest.TestCase):
             mock_response.ok = True
             mock_response.json.return_value = {}
             mock_get.return_value = mock_response
-            
+
             # Test various endpoint formats
             test_cases = [
                 ("/test", "https://api.ouraring.com/v2/test"),
@@ -327,7 +319,7 @@ class TestOuraClientErrorHandling(unittest.TestCase):
                 ("/v2/test", "https://api.ouraring.com/v2/test"),
                 ("v2/test", "https://api.ouraring.com/v2/test"),
             ]
-            
+
             for endpoint, expected_url in test_cases:
                 mock_get.reset_mock()
                 self.client._make_request(endpoint)
@@ -337,7 +329,7 @@ class TestOuraClientErrorHandling(unittest.TestCase):
     def test_retry_config_disabled(self):
         """Test that retry can be disabled."""
         self.client.retry_config = RetryConfig(enabled=False)
-        
+
         with patch("requests.get") as mock_get:
             mock_response = MagicMock()
             mock_response.ok = False
@@ -345,10 +337,10 @@ class TestOuraClientErrorHandling(unittest.TestCase):
             mock_response.reason = "Server Error"
             mock_response.json.return_value = {}
             mock_get.return_value = mock_response
-            
+
             with self.assertRaises(OuraServerError):
                 self.client._make_request("/test")
-            
+
             # Should not retry when disabled
             self.assertEqual(mock_get.call_count, 1)
 
