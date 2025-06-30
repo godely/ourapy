@@ -14,7 +14,9 @@ class Webhook(BaseRouter):
     def _get_webhook_headers(self) -> dict:
         """Helper to construct headers for webhook requests."""
         if (not hasattr(self.client, 'client_id') or
-                not hasattr(self.client, 'client_secret')):
+                not hasattr(self.client, 'client_secret') or
+                self.client.client_id is None or
+                self.client.client_secret is None):
             # This is a fallback or error case. Ideally, the OuraClient
             # should be initialized with client_id and client_secret if
             # webhook management is to be used. For now, we'll raise an error

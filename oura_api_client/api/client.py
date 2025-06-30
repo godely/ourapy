@@ -32,14 +32,24 @@ class OuraClient:
 
     BASE_URL = "https://api.ouraring.com/v2"
 
-    def __init__(self, access_token: str, retry_config: Optional[RetryConfig] = None):
+    def __init__(
+        self, 
+        access_token: str, 
+        retry_config: Optional[RetryConfig] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None
+    ):
         """Initialize the Oura client with an access token.
 
         Args:
             access_token (str): Your Oura API personal access token
             retry_config (RetryConfig, optional): Configuration for retry behavior
+            client_id (str, optional): Client ID for webhook operations
+            client_secret (str, optional): Client secret for webhook operations
         """
         self.access_token = access_token
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json",
@@ -73,6 +83,8 @@ class OuraClient:
         params: Optional[Dict[str, Any]] = None,
         method: str = "GET",
         timeout: Optional[float] = 30.0,
+        json_data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Make a request to the Oura API.
 
@@ -81,6 +93,8 @@ class OuraClient:
             params (dict, optional): Query parameters for the request
             method (str): HTTP method to use (default: GET)
             timeout (float, optional): Request timeout in seconds
+            json_data (dict, optional): JSON data for request body (POST/PUT/PATCH)
+            headers (dict, optional): Additional headers to merge with default headers
 
         Returns:
             dict: The JSON response from the API
@@ -100,9 +114,9 @@ class OuraClient:
 
         # Wrap the actual request in retry logic if enabled
         if self.retry_config.enabled:
-            return self._make_request_with_retry(url, method, params, timeout, endpoint)
+            return self._make_request_with_retry(url, method, params, timeout, endpoint, json_data, headers)
         else:
-            return self._make_single_request(url, method, params, timeout, endpoint)
+            return self._make_single_request(url, method, params, timeout, endpoint, json_data, headers)
 
     def _make_single_request(
         self,
@@ -110,7 +124,9 @@ class OuraClient:
         method: str,
         params: Optional[Dict[str, Any]],
         timeout: Optional[float],
-        endpoint: str
+        endpoint: str,
+        json_data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Make a single HTTP request without retry logic.
         
@@ -120,6 +136,8 @@ class OuraClient:
             params: Query parameters
             timeout: Request timeout
             endpoint: Original endpoint for error context
+            json_data: JSON data for request body
+            headers: Additional headers to merge with default headers
             
         Returns:
             dict: The JSON response from the API
@@ -128,15 +146,42 @@ class OuraClient:
             OuraAPIError: If the request fails
         """
         try:
-            if method.upper() == "GET":
-                response = requests.get(url, headers=self.headers, params=params, timeout=timeout)
+            # Merge headers with default client headers
+            request_headers = self.headers.copy()
+            if headers:
+                request_headers.update(headers)
+
+            method_upper = method.upper()
+            if method_upper == "GET":
+                response = requests.get(url, headers=request_headers, params=params, timeout=timeout)
+            elif method_upper == "POST":
+                if json_data is not None:
+                    response = requests.post(url, headers=request_headers, params=params, json=json_data, timeout=timeout)
+                else:
+                    response = requests.post(url, headers=request_headers, params=params, timeout=timeout)
+            elif method_upper == "PUT":
+                if json_data is not None:
+                    response = requests.put(url, headers=request_headers, params=params, json=json_data, timeout=timeout)
+                else:
+                    response = requests.put(url, headers=request_headers, params=params, timeout=timeout)
+            elif method_upper == "PATCH":
+                if json_data is not None:
+                    response = requests.patch(url, headers=request_headers, params=params, json=json_data, timeout=timeout)
+                else:
+                    response = requests.patch(url, headers=request_headers, params=params, timeout=timeout)
+            elif method_upper == "DELETE":
+                response = requests.delete(url, headers=request_headers, params=params, timeout=timeout)
             else:
-                raise ValueError(f"HTTP method {method} is not supported yet")
+                raise ValueError(f"HTTP method {method} is not supported")
 
             # Check for HTTP errors
             if not response.ok:
                 raise create_api_error(response, endpoint)
 
+            # Handle empty responses (e.g., for DELETE requests)
+            if response.status_code == 204 or not response.content.strip():
+                return {}
+            
             return response.json()
 
         except requests.exceptions.Timeout as e:
@@ -152,7 +197,9 @@ class OuraClient:
         method: str,
         params: Optional[Dict[str, Any]],
         timeout: Optional[float],
-        endpoint: str
+        endpoint: str,
+        json_data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Make HTTP request with retry logic.
         
@@ -162,6 +209,8 @@ class OuraClient:
             params: Query parameters
             timeout: Request timeout
             endpoint: Original endpoint for error context
+            json_data: JSON data for request body
+            headers: Additional headers to merge with default headers
             
         Returns:
             dict: The JSON response from the API
@@ -176,6 +225,6 @@ class OuraClient:
             jitter=self.retry_config.jitter
         )
         def make_request():
-            return self._make_single_request(url, method, params, timeout, endpoint)
+            return self._make_single_request(url, method, params, timeout, endpoint, json_data, headers)
         
         return make_request()
