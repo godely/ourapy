@@ -92,6 +92,8 @@ class TestOuraClient(unittest.TestCase):
         self.assertIsNotNone(self.client.daily_cardiovascular_age)
         # Added vo2_max
         self.assertIsNotNone(self.client.vo2_max)
+        # Added ring_configuration
+        self.assertIsNotNone(self.client.ring_configuration)
 
     @patch("requests.get")
     def test_get_heart_rate(self, mock_get):
