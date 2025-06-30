@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Iterator
 from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.utils import build_query_params
@@ -48,3 +48,28 @@ class DailyReadiness(BaseRouter):
             f"/usercollection/daily_readiness/{document_id}"
         )
         return DailyReadinessModel(**response)
+
+    def stream(
+        self,
+        start_date: Optional[Union[str, date]] = None,
+        end_date: Optional[Union[str, date]] = None,
+    ) -> Iterator[DailyReadinessModel]:
+        """
+        Stream all daily readiness documents automatically handling pagination.
+        
+        Args:
+            start_date: Start date for the period.
+            end_date: End date for the period.
+            
+        Yields:
+            DailyReadinessModel: Individual daily readiness documents.
+            
+        Example:
+            >>> for readiness in client.daily_readiness.stream(start_date="2024-01-01"):
+            ...     print(f"Readiness score: {readiness.score}")
+        """
+        return self._stream_documents(
+            self.get_daily_readiness_documents,
+            start_date=start_date,
+            end_date=end_date
+        )
