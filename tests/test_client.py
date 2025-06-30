@@ -2670,3 +2670,318 @@ class TestVo2Max(unittest.TestCase):
 
         with self.assertRaises(OuraNotFoundError):
             self.client.vo2_max.get_vo2_max_document(document_id)
+
+
+class TestWebhook(unittest.TestCase):
+    """Test cases for webhook operations."""
+
+    def setUp(self):
+        """Set up test client with webhook credentials."""
+        self.client = OuraClient(
+            access_token="test_token",
+            client_id="test_client_id",
+            client_secret="test_client_secret"
+        )
+        self.base_url = "https://api.ouraring.com/v2"
+
+    @patch("requests.get")
+    def test_list_webhook_subscriptions(self, mock_get):
+        """Test listing webhook subscriptions."""
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = [
+            {
+                "id": "subscription_1",
+                "callback_url": "https://example.com/webhook",
+                "event_type": "create",
+                "data_type": "daily_activity",
+                "expiration_time": "2024-12-31T23:59:59+00:00"
+            }
+        ]
+        mock_get.return_value = mock_response
+
+        response = self.client.webhook.list_webhook_subscriptions()
+        
+        self.assertEqual(len(response), 1)
+        self.assertEqual(response[0].id, "subscription_1")
+        self.assertEqual(response[0].callback_url, "https://example.com/webhook")
+        
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/webhook/subscription",
+            headers={
+                "Authorization": "Bearer test_token",
+                "Content-Type": "application/json",
+                "x-client-id": "test_client_id",
+                "x-client-secret": "test_client_secret"
+            },
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.post")
+    def test_create_webhook_subscription(self, mock_post):
+        """Test creating a webhook subscription."""
+        from oura_api_client.models.webhook import WebhookOperation, ExtApiV2DataType
+        
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {
+            "id": "new_subscription_id",
+            "callback_url": "https://example.com/webhook",
+            "event_type": "create",
+            "data_type": "daily_activity",
+            "expiration_time": "2024-12-31T23:59:59+00:00"
+        }
+        mock_post.return_value = mock_response
+
+        response = self.client.webhook.create_webhook_subscription(
+            callback_url="https://example.com/webhook",
+            event_type=WebhookOperation.CREATE,
+            data_type=ExtApiV2DataType.DAILY_ACTIVITY,
+            verification_token="test_token"
+        )
+        
+        self.assertEqual(response.id, "new_subscription_id")
+        self.assertEqual(response.callback_url, "https://example.com/webhook")
+        
+        mock_post.assert_called_once()
+        call_args = mock_post.call_args
+        self.assertIn("json", call_args[1])
+        self.assertEqual(call_args[1]["json"]["callback_url"], "https://example.com/webhook")
+
+    @patch("requests.get")
+    def test_get_webhook_subscription(self, mock_get):
+        """Test getting a specific webhook subscription."""
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {
+            "id": "subscription_1",
+            "callback_url": "https://example.com/webhook",
+            "event_type": "create",
+            "data_type": "daily_activity",
+            "expiration_time": "2024-12-31T23:59:59+00:00"
+        }
+        mock_get.return_value = mock_response
+
+        response = self.client.webhook.get_webhook_subscription("subscription_1")
+        
+        self.assertEqual(response.id, "subscription_1")
+        self.assertEqual(response.callback_url, "https://example.com/webhook")
+        
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/webhook/subscription/subscription_1",
+            headers={
+                "Authorization": "Bearer test_token",
+                "Content-Type": "application/json",
+                "x-client-id": "test_client_id",
+                "x-client-secret": "test_client_secret"
+            },
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.put")
+    def test_update_webhook_subscription(self, mock_put):
+        """Test updating a webhook subscription."""
+        from oura_api_client.models.webhook import WebhookOperation, ExtApiV2DataType
+        
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {
+            "id": "subscription_1",
+            "callback_url": "https://updated.example.com/webhook",
+            "event_type": "update",
+            "data_type": "daily_sleep",
+            "expiration_time": "2024-12-31T23:59:59+00:00"
+        }
+        mock_put.return_value = mock_response
+
+        response = self.client.webhook.update_webhook_subscription(
+            subscription_id="subscription_1",
+            verification_token="test_token",
+            callback_url="https://updated.example.com/webhook",
+            event_type=WebhookOperation.UPDATE,
+            data_type=ExtApiV2DataType.DAILY_SLEEP
+        )
+        
+        self.assertEqual(response.id, "subscription_1")
+        self.assertEqual(response.callback_url, "https://updated.example.com/webhook")
+        
+        mock_put.assert_called_once()
+        call_args = mock_put.call_args
+        self.assertIn("json", call_args[1])
+
+    @patch("requests.delete")
+    def test_delete_webhook_subscription(self, mock_delete):
+        """Test deleting a webhook subscription."""
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.status_code = 204
+        mock_response.content = b""
+        mock_delete.return_value = mock_response
+
+        response = self.client.webhook.delete_webhook_subscription("subscription_1")
+        
+        self.assertIsNone(response)
+        
+        mock_delete.assert_called_once_with(
+            f"{self.base_url}/webhook/subscription/subscription_1",
+            headers={
+                "Authorization": "Bearer test_token",
+                "Content-Type": "application/json",
+                "x-client-id": "test_client_id",
+                "x-client-secret": "test_client_secret"
+            },
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.put")
+    def test_renew_webhook_subscription(self, mock_put):
+        """Test renewing a webhook subscription."""
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {
+            "id": "subscription_1",
+            "callback_url": "https://example.com/webhook",
+            "event_type": "create",
+            "data_type": "daily_activity",
+            "expiration_time": "2025-12-31T23:59:59+00:00"
+        }
+        mock_put.return_value = mock_response
+
+        response = self.client.webhook.renew_webhook_subscription("subscription_1")
+        
+        self.assertEqual(response.id, "subscription_1")
+        self.assertEqual(response.expiration_time.year, 2025)
+        
+        mock_put.assert_called_once_with(
+            f"{self.base_url}/webhook/subscription/renew/subscription_1",
+            headers={
+                "Authorization": "Bearer test_token",
+                "Content-Type": "application/json",
+                "x-client-id": "test_client_id",
+                "x-client-secret": "test_client_secret"
+            },
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_webhook_requires_credentials(self, mock_get):
+        """Test that webhook operations require client_id and client_secret."""
+        client_without_creds = OuraClient(access_token="test_token")
+        
+        with self.assertRaises(ValueError) as context:
+            client_without_creds.webhook.list_webhook_subscriptions()
+        
+        self.assertIn("client_id and client_secret must be set", str(context.exception))
+        
+        # The method should not have made any HTTP requests
+        mock_get.assert_not_called()
+
+
+class TestHTTPMethods(unittest.TestCase):
+    """Test cases for HTTP method support in _make_request."""
+
+    def setUp(self):
+        """Set up test client."""
+        self.client = OuraClient(access_token="test_token")
+
+    @patch("requests.post")
+    def test_post_method_with_json_data(self, mock_post):
+        """Test POST method with JSON data."""
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {"success": True}
+        mock_post.return_value = mock_response
+
+        result = self.client._make_request(
+            "/test", 
+            method="POST", 
+            json_data={"test": "data"}
+        )
+        
+        self.assertEqual(result["success"], True)
+        mock_post.assert_called_once_with(
+            "https://api.ouraring.com/v2/test",
+            headers=self.client.headers,
+            params=None,
+            json={"test": "data"},
+            timeout=30.0,
+        )
+
+    @patch("requests.put")
+    def test_put_method_without_json_data(self, mock_put):
+        """Test PUT method without JSON data."""
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {"updated": True}
+        mock_put.return_value = mock_response
+
+        result = self.client._make_request("/test", method="PUT")
+        
+        self.assertEqual(result["updated"], True)
+        mock_put.assert_called_once_with(
+            "https://api.ouraring.com/v2/test",
+            headers=self.client.headers,
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.delete")
+    def test_delete_method_empty_response(self, mock_delete):
+        """Test DELETE method with empty response."""
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.status_code = 204
+        mock_response.content = b""
+        mock_delete.return_value = mock_response
+
+        result = self.client._make_request("/test", method="DELETE")
+        
+        self.assertEqual(result, {})
+        mock_delete.assert_called_once()
+
+    @patch("requests.patch")
+    def test_patch_method_with_headers(self, mock_patch):
+        """Test PATCH method with custom headers."""
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {"patched": True}
+        mock_patch.return_value = mock_response
+
+        custom_headers = {"X-Custom": "value"}
+        result = self.client._make_request(
+            "/test", 
+            method="PATCH", 
+            json_data={"field": "value"},
+            headers=custom_headers
+        )
+        
+        self.assertEqual(result["patched"], True)
+        
+        # Check that custom headers are merged with default headers
+        expected_headers = self.client.headers.copy()
+        expected_headers.update(custom_headers)
+        
+        mock_patch.assert_called_once_with(
+            "https://api.ouraring.com/v2/test",
+            headers=expected_headers,
+            params=None,
+            json={"field": "value"},
+            timeout=30.0,
+        )
+
+    def test_unsupported_method(self):
+        """Test that unsupported HTTP methods raise ValueError."""
+        with self.assertRaises(ValueError) as context:
+            self.client._make_request("/test", method="TRACE")
+        
+        self.assertIn("HTTP method TRACE is not supported", str(context.exception))
