@@ -44,6 +44,12 @@ from oura_api_client.models.daily_cardiovascular_age import (
 from oura_api_client.models.vo2_max import (
     Vo2MaxResponse, Vo2MaxModel
 )  # Added Vo2Max models
+from oura_api_client.models.ring_configuration import (
+    RingConfigurationResponse, RingConfigurationModel
+)  # Added RingConfiguration models
+from oura_api_client.models.personal import (
+    PersonalInfo
+)  # Added Personal models
 import requests
 
 from oura_api_client.exceptions import (
@@ -2670,3 +2676,299 @@ class TestVo2Max(unittest.TestCase):
 
         with self.assertRaises(OuraNotFoundError):
             self.client.vo2_max.get_vo2_max_document(document_id)
+
+
+class TestRingConfiguration(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+        self.base_url = self.client.BASE_URL
+
+    @patch("requests.get")
+    def test_get_ring_configuration_documents_no_params(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.ring_configuration.get_ring_configuration_documents()
+        self.assertIsInstance(response, RingConfigurationResponse)
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/ring_configuration",
+            headers=self.client.headers,
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_ring_configuration_documents_start_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.ring_configuration.get_ring_configuration_documents(
+            start_date="2024-03-01"
+        )
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/ring_configuration",
+            headers=self.client.headers,
+            params={"start_date": "2024-03-01"},
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_ring_configuration_documents_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.ring_configuration.get_ring_configuration_documents(
+            end_date="2024-02-28"
+        )
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/ring_configuration",
+            headers=self.client.headers,
+            params={"end_date": "2024-02-28"},
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_ring_configuration_documents_start_and_end_date(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.ring_configuration.get_ring_configuration_documents(
+            start_date="2024-02-01", end_date="2024-02-28"
+        )
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/ring_configuration",
+            headers=self.client.headers,
+            params={"start_date": "2024-02-01", "end_date": "2024-02-28"},
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_ring_configuration_documents_next_token(self, mock_get):
+        mock_response_data = {"data": [], "next_token": None}
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        self.client.ring_configuration.get_ring_configuration_documents(
+            next_token="next_token_string"
+        )
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/ring_configuration",
+            headers=self.client.headers,
+            params={"next_token": "next_token_string"},
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_ring_configuration_documents_success(self, mock_get):
+        mock_response_data = {
+            "data": [{
+                "id": "ring_config_1",
+                "color": "silver",
+                "design": "heritage",
+                "firmware_version": "2.1.0",
+                "hardware_type": "gen3",
+                "set_up_at": "2024-01-15T10:00:00+00:00",
+                "size": 8
+            }],
+            "next_token": "ring_next_token"
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.ring_configuration.get_ring_configuration_documents(
+            start_date="2024-01-15"
+        )
+        self.assertIsInstance(response, RingConfigurationResponse)
+        self.assertEqual(len(response.data), 1)
+        model_item = response.data[0]
+        self.assertIsInstance(model_item, RingConfigurationModel)
+        self.assertEqual(model_item.id, "ring_config_1")
+        self.assertEqual(model_item.color, "silver")
+        self.assertEqual(model_item.design, "heritage")
+        self.assertEqual(model_item.firmware_version, "2.1.0")
+        self.assertEqual(model_item.hardware_type, "gen3")
+        self.assertEqual(model_item.size, 8)
+        self.assertEqual(response.next_token, "ring_next_token")
+        mock_get.assert_called_with(
+            f"{self.base_url}/usercollection/ring_configuration",
+            headers=self.client.headers,
+            params={"start_date": "2024-01-15"},
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_ring_configuration_documents_api_error_400(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = False
+        mock_response.status_code = 400
+        mock_response.reason = "Bad Request"
+        mock_response.json.return_value = {"error": "400 Client Error"}
+        mock_get.return_value = mock_response
+        with self.assertRaises(OuraClientError):
+            self.client.ring_configuration.get_ring_configuration_documents()
+
+    @patch("requests.get")
+    def test_get_ring_configuration_document_success(self, mock_get):
+        document_id = "ring_config_test_id"
+        mock_response_json = {
+            "id": document_id,
+            "color": "black",
+            "design": "horizon",
+            "firmware_version": "2.2.1",
+            "hardware_type": "gen3",
+            "set_up_at": "2024-02-01T08:30:00+00:00",
+            "size": 9
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_json
+        mock_get.return_value = mock_response
+
+        response = self.client.ring_configuration.get_ring_configuration_document(
+            document_id=document_id
+        )
+        self.assertIsInstance(response, RingConfigurationModel)
+        self.assertEqual(response.id, document_id)
+        self.assertEqual(response.color, "black")
+        self.assertEqual(response.design, "horizon")
+        self.assertEqual(response.firmware_version, "2.2.1")
+        self.assertEqual(response.hardware_type, "gen3")
+        self.assertEqual(response.size, 9)
+
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/ring_configuration/{document_id}",
+            headers=self.client.headers,
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_ring_configuration_document_not_found_404(self, mock_get):
+        document_id = "non_existent_ring_config_id"
+        mock_response = MagicMock()
+        mock_response.ok = False
+        mock_response.status_code = 404
+        mock_response.reason = "Not Found"
+        mock_response.json.return_value = {"error": "404 Client Error: Not Found"}
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(OuraNotFoundError):
+            self.client.ring_configuration.get_ring_configuration_document(document_id)
+
+
+class TestPersonal(unittest.TestCase):
+    def setUp(self):
+        self.client = OuraClient(access_token="test_token")
+        self.base_url = self.client.BASE_URL
+
+    @patch("requests.get")
+    def test_get_personal_info_success(self, mock_get):
+        mock_response_data = {
+            "id": "user_123",
+            "email": "test@example.com",
+            "age": 30,
+            "weight": 70.5,
+            "height": 175.0,
+            "biological_sex": "male",
+            "birth_date": "1993-05-15"
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.personal.get_personal_info()
+        self.assertIsInstance(response, PersonalInfo)
+        self.assertEqual(response.id, "user_123")
+        self.assertEqual(response.email, "test@example.com")
+        self.assertEqual(response.age, 30)
+        self.assertEqual(response.weight, 70.5)
+        self.assertEqual(response.height, 175.0)
+        self.assertEqual(response.biological_sex, "male")
+        self.assertEqual(response.birth_date, date(1993, 5, 15))
+
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/personal_info",
+            headers=self.client.headers,
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_personal_info_raw_response(self, mock_get):
+        mock_response_data = {
+            "id": "user_123",
+            "email": "test@example.com",
+            "age": 30,
+            "weight": 70.5,
+            "height": 175.0,
+            "biological_sex": "male",
+            "birth_date": "1993-05-15"
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.personal.get_personal_info(return_model=False)
+        self.assertIsInstance(response, dict)
+        self.assertEqual(response["id"], "user_123")
+        self.assertEqual(response["email"], "test@example.com")
+        self.assertEqual(response["age"], 30)
+
+        mock_get.assert_called_once_with(
+            f"{self.base_url}/usercollection/personal_info",
+            headers=self.client.headers,
+            params=None,
+            timeout=30.0,
+        )
+
+    @patch("requests.get")
+    def test_get_personal_info_api_error_401(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = False
+        mock_response.status_code = 401
+        mock_response.reason = "Unauthorized"
+        mock_response.json.return_value = {"error": "401 Client Error: Unauthorized"}
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(Exception):  # Specific exception depends on error handling implementation
+            self.client.personal.get_personal_info()
+
+    @patch("requests.get")
+    def test_get_personal_info_minimal_data(self, mock_get):
+        mock_response_data = {
+            "id": "user_456",
+            "email": "minimal@example.com",
+            "age": 25
+        }
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = mock_response_data
+        mock_get.return_value = mock_response
+
+        response = self.client.personal.get_personal_info()
+        self.assertIsInstance(response, PersonalInfo)
+        self.assertEqual(response.id, "user_456")
+        self.assertEqual(response.email, "minimal@example.com")
+        self.assertEqual(response.age, 25)
+        self.assertIsNone(response.weight)
+        self.assertIsNone(response.height)
+        self.assertIsNone(response.biological_sex)
+        self.assertIsNone(response.birth_date)
