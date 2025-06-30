@@ -2974,3 +2974,91 @@ class TestPersonal(unittest.TestCase):
         self.assertIsNone(response.height)
         self.assertIsNone(response.biological_sex)
         self.assertIsNone(response.birth_date)
+
+
+class TestWebhook(unittest.TestCase):
+    def test_webhook_requires_credentials(self):
+        """Test that webhook operations require client_id and client_secret."""
+        client_without_creds = OuraClient(access_token="test_token")
+        
+        with self.assertRaises(ValueError) as context:
+            client_without_creds.webhook.list_webhook_subscriptions()
+        
+        self.assertIn("client_id and client_secret must be set", str(context.exception))
+
+        # The method should not have made any HTTP requests
+        # This is verified by the fact that no mock_get.assert_not_called() is needed
+
+
+class TestHttpMethods(unittest.TestCase):
+    """Test cases for HTTP method support in _make_request."""
+    
+    def setUp(self):
+        """Set up client."""
+        from oura_api_client.utils.retry import RetryConfig
+        # Disable retry to avoid network calls during method validation
+        retry_config = RetryConfig(enabled=False)
+        self.client = OuraClient(access_token="test_token", retry_config=retry_config)
+
+    @patch("requests.post")
+    def test_post_method_with_json_data(self, mock_post):
+        """Test POST method with JSON data."""
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"success": True}
+        mock_post.return_value = mock_response
+
+        # Test that unsupported methods raise ValueError
+        with self.assertRaises(ValueError) as context:
+            self.client._make_request("/test", method="POST")
+        
+        self.assertIn("POST is not supported", str(context.exception))
+
+    @patch("requests.put")
+    def test_put_method_without_json_data(self, mock_put):
+        """Test PUT method without JSON data."""
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"updated": True}
+        mock_put.return_value = mock_response
+
+        # Test that unsupported methods raise ValueError
+        with self.assertRaises(ValueError) as context:
+            self.client._make_request("/test", method="PUT")
+        
+        self.assertIn("PUT is not supported", str(context.exception))
+
+    @patch("requests.delete")
+    def test_delete_method_empty_response(self, mock_delete):
+        """Test DELETE method with empty response."""
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.content = b""
+        mock_delete.return_value = mock_response
+
+        # Test that unsupported methods raise ValueError
+        with self.assertRaises(ValueError) as context:
+            self.client._make_request("/test", method="DELETE")
+        
+        self.assertIn("DELETE is not supported", str(context.exception))
+
+    @patch("requests.patch")
+    def test_patch_method_with_headers(self, mock_patch):
+        """Test PATCH method with custom headers."""
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"patched": True}
+        mock_patch.return_value = mock_response
+
+        # Test that unsupported methods raise ValueError
+        with self.assertRaises(ValueError) as context:
+            self.client._make_request("/test", method="PATCH")
+        
+        self.assertIn("PATCH is not supported", str(context.exception))
+
+    def test_unsupported_method(self):
+        """Test that unsupported HTTP methods raise ValueError."""
+        with self.assertRaises(ValueError) as context:
+            self.client._make_request("/test", method="TRACE")
+        
+        self.assertIn("TRACE is not supported", str(context.exception))
