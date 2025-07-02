@@ -123,15 +123,43 @@ The client automatically retries on:
 ### Each endpoint supports:
 - `get_xxx_documents()` - Get multiple documents with pagination
 - `get_xxx_document(document_id)` - Get a single document by ID
+- `stream()` - **NEW!** Stream all documents automatically handling pagination
 - Date filtering with `start_date` and `end_date` (accepts strings or date objects)
 - Pagination with `next_token`
 
 ## Advanced Usage
 
-### Pagination
+### Seamless Pagination with Stream Methods
+
+The easiest way to work with paginated data is using the `.stream()` methods, which automatically handle pagination and yield individual items:
 
 ```python
-# Iterate through all sleep data using pagination
+# Stream all sleep data seamlessly - no manual pagination needed!
+for sleep_record in client.daily_sleep.stream(start_date="2024-01-01"):
+    print(f"Date: {sleep_record.day}, Score: {sleep_record.score}")
+
+# Stream heart rate data for analysis
+for hr_sample in client.heartrate.stream(start_date="2024-12-20"):
+    print(f"Heart rate: {hr_sample.bpm} at {hr_sample.timestamp}")
+
+# Stream activity data with date range
+for activity in client.daily_activity.stream(
+    start_date="2024-01-01", 
+    end_date="2024-01-31"
+):
+    print(f"Steps: {activity.steps}, Calories: {activity.active_calories}")
+
+# Stream session data
+for session in client.session.stream(start_date="2024-01-01"):
+    print(f"Session: {session.type} from {session.start_datetime}")
+```
+
+### Manual Pagination (Advanced)
+
+For more control over pagination, you can still handle it manually:
+
+```python
+# Iterate through all sleep data using manual pagination
 next_token = None
 all_sleep_data = []
 

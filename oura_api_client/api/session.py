@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Iterator
 from datetime import date  # Using date for start_date and end_date
 # as per other endpoints
 from oura_api_client.api.base import BaseRouter
@@ -46,3 +46,28 @@ class Session(BaseRouter):
             f"/usercollection/session/{document_id}"
         )
         return SessionModel(**response)
+
+    def stream(
+        self,
+        start_date: Optional[Union[str, date]] = None,
+        end_date: Optional[Union[str, date]] = None,
+    ) -> Iterator[SessionModel]:
+        """
+        Stream all session documents automatically handling pagination.
+        
+        Args:
+            start_date: Start date for the period.
+            end_date: End date for the period.
+            
+        Yields:
+            SessionModel: Individual session documents.
+            
+        Example:
+            >>> for session in client.session.stream(start_date="2024-01-01"):
+            ...     print(f"Session type: {session.type}")
+        """
+        return self._stream_documents(
+            self.get_session_documents,
+            start_date=start_date,
+            end_date=end_date
+        )

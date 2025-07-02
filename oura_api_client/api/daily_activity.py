@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Iterator
 from datetime import date
 from oura_api_client.api.base import BaseRouter
 from oura_api_client.models.daily_activity import DailyActivityResponse, DailyActivityModel
@@ -45,3 +45,28 @@ class DailyActivity(BaseRouter):
             f"/usercollection/daily_activity/{document_id}"
         )
         return DailyActivityModel(**response)
+
+    def stream(
+        self,
+        start_date: Optional[Union[str, date]] = None,
+        end_date: Optional[Union[str, date]] = None,
+    ) -> Iterator[DailyActivityModel]:
+        """
+        Stream all daily activity documents automatically handling pagination.
+        
+        Args:
+            start_date: Start date for the period.
+            end_date: End date for the period.
+            
+        Yields:
+            DailyActivityModel: Individual daily activity documents.
+            
+        Example:
+            >>> for activity in client.daily_activity.stream(start_date="2024-01-01"):
+            ...     print(f"Steps: {activity.steps}")
+        """
+        return self._stream_documents(
+            self.get_daily_activity_documents,
+            start_date=start_date,
+            end_date=end_date
+        )
