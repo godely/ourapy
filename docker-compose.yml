@@ -1,8 +1,36 @@
 version: "3.8"
+
 services:
   app:
-    build: .
-    ports:
-      - "5000:5000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oura_api_dev
+    # Mounts for live code reloading during development
     volumes:
       - ./src:/app/src
+      - ./tests:/app/tests
+      - ./openapi_spec.json:/app/openapi_spec.json
+      - ./setup.py:/app/setup.py
+      # If example.py or other root scripts are needed and are modified during dev:
+      # - ./example.py:/app/example.py
+
+    # Keep the container running for development, e.g., for exec-ing into it
+    # Overrides the Dockerfile's CMD
+    # command: tail -f /dev/null
+
+    # Or, to run tests by default when doing `docker-compose up`:
+    command: pytest tests/
+
+    # If your example.py runs a web service on port 5000:
+    # ports:
+    #   - "5000:5000"
+
+    environment:
+      # Add any environment variables needed for development or testing
+      # - MY_VARIABLE=my_value
+      - PYTHONUNBUFFERED=1 # Ensures print statements appear without delay
+
+    # Standard useful settings
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
